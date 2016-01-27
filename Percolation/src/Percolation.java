@@ -1,4 +1,3 @@
-
 /**
  * @author Miriam Lee
  * @date
@@ -27,6 +26,11 @@ public class Percolation {
    */
   private boolean[][] open;
   /**
+   * Marker of elements roots linked to bottom.
+   */
+  private boolean[] bottom;
+
+  /**
    * which sites are connected to which other sites.
    */
   private WeightedQuickUnionUF uf;
@@ -34,7 +38,7 @@ public class Percolation {
   /**
    * create N-by- N grid, with all sites blocked.
    *
-   * @param N
+   * @param N size of grid
    * @throws java.lang.IllegalArgumentException
    *           if N ≤ 0
    */
@@ -48,6 +52,7 @@ public class Percolation {
     open = new boolean[N + 2][N + 2];
     Arrays.fill(open[0], true); // top open
     Arrays.fill(open[N + 1], true); // bottom open
+    bottom = new boolean[(N + 2) * (N + 2)];
 
     // which sites are connected to which other sites. The last of these is
     // exactly what the union-find data structure is designed for.
@@ -59,9 +64,7 @@ public class Percolation {
       uf.union(1, i + 1);
     }
     for (int i = 0; i <= N; i++) { // bottom
-      // if (i < N)
       uf.union(xyTo1D(N + 1, i), xyTo1D(N + 1, i + 1));
-      // uf.union(xyTo1D(N + 1, i), xyTo1D(N, i));
     }
   }
 
@@ -117,24 +120,61 @@ public class Percolation {
       open[i][j] = true;
 
       // Third, it should perform some sequence of WeightedQuickUnionUF
-      // operations that links the
-      // site in question to its open neighbors.
-      if (i + 1 <= N + 1 && open[i + 1][j]) {
-        // if (i+1 != N+1 || uf.connected(1, xyTo1D(i, j))) //FOR BackWash
-        uf.union(xyTo1D(i, j), xyTo1D(i + 1, j));
-      }
-      if (j + 1 <= N && open[i][j + 1]) {
-        uf.union(xyTo1D(i, j), xyTo1D(i, j + 1));
-      }
+      // operations that links the site in question to its open neighbors.
 
-      if (i - 1 >= 0 && open[i - 1][j]) {
-        uf.union(xyTo1D(i, j), xyTo1D(i - 1, j));
-      }
+      connect(i, j, i, j + 1);
+      connect(i, j, i, j - 1);
+      connect(i, j, i - 1, j);
 
-      if (j - 1 > 0 && open[i][j - 1]) {
-        uf.union(xyTo1D(i, j), xyTo1D(i, j - 1));
+      if (open[i + 1][j]) {
+        if (i == N) { // if opening bottom row, set root to link to bottom
+          bottom[uf.find(xyTo1D(i, j))] = true;
+          // if it is connected to top, percolate
+          if (uf.connected(1, xyTo1D(i, j))) {
+            unite(i, j, i + 1, j);
+          }
+        } else {
+          connect(i, j, i + 1, j);
+          // unite(i, j, i + 1, j);
+
+        }
       }
     }
+
+  }
+
+  /**
+   * Connect site. Given isOpen(i,j)==true, if any of the sites' parents connect
+   * to bottom, then percolate.
+   *
+   * @param i
+   * @param j
+   * @param i2
+   * @param j2
+   */
+  private void connect(int i, int j, int i2, int j2) {
+    if (open[i2][j2]) {
+      // FOR BackWash
+      boolean con = bottom[uf.find(xyTo1D(i2, j2))]
+          || bottom[uf.find(xyTo1D(i, j))];
+      unite(i, j, i2, j2);
+      // update root parent if connected to bottom
+      bottom[uf.find(xyTo1D(i, j))] = con;
+      // if coming from the top (and connecting to the bottom)
+      if (con && uf.connected(1, xyTo1D(i, j))) {
+        unite(i, j, N + 1, N);
+      }
+    }
+
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param xyTo1D
+   * @param xyTo1D2
+   */
+  private void unite(int i1, int j1, int i2, int j2) {
+    uf.union(xyTo1D(i1, j1), xyTo1D(i2, j2));
   }
 
   /**
@@ -167,6 +207,8 @@ public class Percolation {
    */
   public boolean isFull(final int i, final int j) {
     validateIndices(i, j);
+    // boolean conn = uf.connected(xyTo1D(i, j), xyTo1D(N + 1, N));//backwash
+
     return uf.connected(1, xyTo1D(i, j));
   }
 
