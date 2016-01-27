@@ -22,7 +22,7 @@ public class Percolation {
    * @throws java.lang.IllegalArgumentException
    *           if N ≤ 0
    */
-  public Percolation(int N) throws IllegalArgumentException {
+  public Percolation(int N) {
     if (N <= 0)
       throw new IllegalArgumentException();
 
@@ -79,7 +79,7 @@ public class Percolation {
    * @param j
    * @throws java.lang.IndexOutOfBoundsException
    */
-  public void open(int i, int j) throws IndexOutOfBoundsException {
+  public void open(int i, int j) {
     // First, it should validate the indices of the site that it receives.
     if (validateIndices(i, j)) {
 
@@ -112,7 +112,7 @@ public class Percolation {
    * @return
    * @throws java.lang.IndexOutOfBoundsException
    */
-  public boolean isOpen(int i, int j) throws IndexOutOfBoundsException {
+  public boolean isOpen(int i, int j) {
     return open[i][j];
   }
 
@@ -127,7 +127,7 @@ public class Percolation {
    * @return
    * @throws java.lang.IndexOutOfBoundsException
    */
-  public boolean isFull(int i, int j) throws IndexOutOfBoundsException {
+  public boolean isFull(int i, int j) {
     return uf.connected(1, xyTo1D(i, j));
   }
 
