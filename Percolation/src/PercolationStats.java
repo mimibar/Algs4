@@ -5,7 +5,6 @@
  * @purpose
  * @howto
  */
-import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
@@ -53,8 +52,6 @@ public class PercolationStats {
         // Open the site (row i, column j).
         p.open(i, j);
         opened++;
-        // PercolationVisualizer.draw(p, N);
-        // StdDraw.show(0);
       }
       // The fraction of sites that are opened when the system percolates
       // provides an estimate of the percolation threshold.
@@ -77,6 +74,9 @@ public class PercolationStats {
    * @return
    */
   public double stddev() {
+    if (T == 1)// What should stddev() return if T equals 1? The sample standard
+               // deviation is undefined. We recommend returning Double.NaN.
+      return Double.NaN;
     return StdStats.stddev(x);
   }
 
@@ -104,8 +104,6 @@ public class PercolationStats {
    * @param args
    */
   public static void main(String[] args) {
-    // turn on animation mode
-    // StdDraw.show(0);
 
     // takes two command-line arguments N and T,
     PercolationStats ps = new PercolationStats((int) Integer.parseInt(args[0]),
@@ -115,7 +113,8 @@ public class PercolationStats {
     // the percolation threshold.
     StdOut.printf("mean                    = %.16f\n", ps.mean());
     StdOut.printf("stddev                  = %.17f\n", ps.stddev());
-    StdOut.printf("95%% confidence interval = %.16f, %.16f\n", ps.confidenceLo(), ps.confidenceHi());
+    StdOut.printf("95%% confidence interval = %.16f, %.16f\n", ps.confidenceLo(),
+        ps.confidenceHi());
 
   }
 
