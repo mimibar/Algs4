@@ -4,8 +4,6 @@
  */
 package quiz;
 
-import java.util.HashMap;
-
 import edu.princeton.cs.algs4.StdOut;
 
 /**
@@ -19,38 +17,28 @@ import edu.princeton.cs.algs4.StdOut;
  * @author Robert Sedgewick
  * @author Kevin Wayne
  */
-public class DoublingRatio {
+public class DoublingRatio2 {
   private static final int MAXIMUM_INTEGER = 1000000;
 
   // This class should not be instantiated.
-  private DoublingRatio() {
+  private DoublingRatio2() {
   }
 
   /**
-   * Returns the amount of time to call <tt>ThreeSum.count()</tt> with
-   * <em>N</em> random 6-digit integers.
+   * What is the order of growth of the worst case running time of the following
+   * code fragment as a function of N?
    *
+   * @seed 260368
    * @param N
-   *          the number of integers
-   * @return amount of time (in seconds) to call <tt>ThreeSum.count()</tt> with
-   *         <em>N</em> random 6-digit integers
+   * @return
    */
-  public static double sequence(int N) {
-    HashMap<Integer, Double> h = new HashMap<>(8);
-    h.put(2048, 0.000);
-    h.put(4096, 0.001);
-    h.put(8192, 0.003);
-    h.put(16384, 0.012);
-    h.put(32768, 0.043);
-    h.put(65536, 0.156);
-    h.put(131072, 0.561);
-    h.put(262144, 2.021);
-    h.put(524288, 7.238);
-    h.put(1048576, 26.096);
-    h.put(2097152, 93.660);
-    h.put(4194304, 337.296);
-    h.put(8388608, 1210.641);
-    return h.get(N);
+  public static double sequence(double N) {
+
+    double sum = 0;
+    for (double i = 3 * N * N * N; i > 1; i = i / 2)
+      sum++;
+
+    return sum;
   }
 
   /**
@@ -61,11 +49,11 @@ public class DoublingRatio {
   public static void main(String[] args) {
     StdOut.printf(
         "N\tseconds\t\tratio\t\tlog_2 ratio\n---------------------------------------\n");
-    int N = 2048;
+    int N = 2048;// 256;// 2048;// 32;
     double b = 0, ratio;
     double prev = sequence(N);
     StdOut.printf("%8d\t%8.3f\t-\t-\n", N, prev);
-    for (N += N; N <= 8388608; N += N) {
+    for (N += N; N <= 33554432/* 262144 */ /* 33554432 */ /* 4097 */; N += N) {
       double time = sequence(N);
       ratio = Math.log(time / prev) / Math.log(2);
 
