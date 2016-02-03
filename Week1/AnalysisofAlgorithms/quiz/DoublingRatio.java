@@ -37,15 +37,21 @@ public class DoublingRatio {
    */
   public static double sequence(int N) {
     HashMap<Integer, Double> h = new HashMap<>(8);
-    h.put(32, 0.0);
-    h.put(64, 0.004);
-    h.put(128, 0.041);
-    h.put(256, 0.473);
-    h.put(512, 5.562);
-    h.put(1024, 64.693);
-    h.put(2048, 742.645);
-    h.put(4096, 8760.418);
-
+    h.put(2048, 0.000);
+    h.put(4096, 0.001);
+    h.put(8192, 0.002);
+    h.put(16384, 0.005);
+    h.put(32768, 0.016);
+    h.put(65536, 0.048);
+    h.put(131072, 0.148);
+    h.put(262144, 0.454);
+    h.put(524288, 1.386);
+    h.put(1048576, 4.254);
+    h.put(2097152, 13.047);
+    h.put(4194304, 39.917);
+    h.put(8388608, 122.367);
+    h.put(16777216, 374.884);
+    h.put(33554432, 1148.240);
     return h.get(N);
   }
 
@@ -57,11 +63,11 @@ public class DoublingRatio {
   public static void main(String[] args) {
     StdOut.printf(
         "N\tseconds\t\tratio\t\tlog_2 ratio\n---------------------------------------\n");
-    int N = 32;
+    int N = 2048;
     double b = 0, ratio;
     double prev = sequence(N);
     StdOut.printf("%8d\t%8.3f\t-\t-\n", N, prev);
-    for (N += N; N <= 4096; N += N) {
+    for (N += N; N <= 33554432; N += N) {
       double time = sequence(N);
       ratio = Math.log(time / prev) / Math.log(2);
 
@@ -75,6 +81,6 @@ public class DoublingRatio {
       prev = time;
 
     }
-    StdOut.printf("The empirical order-of-growth is N ^ %.2f\n", b / 6);
+    StdOut.printf("The empirical order-of-growth is N ^ %.2f\n", b / 13);
   }
 }
