@@ -102,7 +102,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     int r = 0;
     if (N > 1) {
-      r = StdRandom.uniform(N - 1);
+      r = StdRandom.uniform(N); // N (exclusive)
     }
 
     Item item = rqueue[r];
@@ -134,7 +134,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
     int r = 0;
     if (N > 1) { // Test 6a
-      r = StdRandom.uniform(N - 1);
+      r = StdRandom.uniform(N); // N (exclusive)
     }
     return rqueue[r];
   }
@@ -192,7 +192,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       Item[] b = copy(a);
 
       // Shuffle only with existing items
-      StdRandom.shuffle(b, 0, N);
+      StdRandom.shuffle(b, 0, N - 1); // Test 15: right endpoint (inclusive)
       return b;
     }
 
