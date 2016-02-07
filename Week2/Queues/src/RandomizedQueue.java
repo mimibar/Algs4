@@ -192,7 +192,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       Item[] b = copy(a);
 
       // Shuffle only with existing items
-      StdRandom.shuffle(b, 0, N - 1); // Test 15: right endpoint (inclusive)
+      if (N > 1)
+        StdRandom.shuffle(b, 0, N - 1); // Test 15: right endpoint (inclusive)
       return b;
     }
 
