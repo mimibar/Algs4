@@ -163,7 +163,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     /**
      * Given an array, how can I rearrange the entries in random order? Use
-     * StdRandom.shuffle()—it implements the Knuth shuffle discussed in lecture
+     * StdRandom.shuffle() it implements the Knuth shuffle discussed in lecture
      * and runs in linear time
      *
      * @param a
