@@ -80,13 +80,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   private void resize(int capacity) {
     assert capacity >= N;
     Item[] temp = (Item[]) new Object[capacity];
-    int r = 0;
+
     for (int i = 0; i < N; i++) {
-      if (rqueue[i] != null)// Test 1a-1g
-        temp[i] = rqueue[r];
-      else
-        r++;// skip dequed
-      r++;
+      temp[i] = rqueue[i];
     }
     rqueue = temp;
   }
@@ -110,22 +106,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     Item item = rqueue[r];
-    rqueue[r] = null; // to avoid loitering
-
-    // for (int i = r; i < N - 1; i++) {
-    // rqueue[i] = rqueue[i + 1];
-    // }
+    rqueue[r] = rqueue[N - 1]; // Test 1a-1g: exchange last with dequeued
 
     N--;
 
     // shrink size of array if necessary
     if (N > 0 && N == rqueue.length / 4) {
       resize(rqueue.length / 2);
-    } else {
-      for (int i = r; i < N ; i++) {
-        rqueue[i] = rqueue[i + 1];
-      }
-      rqueue[N] = null;//delete after it has been copied
+
     }
     return item;
   }
@@ -143,7 +131,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       throw new NoSuchElementException();
     }
     int r = 0;
-    if (N > 1) {// Test 6a
+    if (N > 1) { // Test 6a
       r = StdRandom.uniform(N - 1);
     }
     return rqueue[r];
@@ -181,7 +169,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     *
     */
     private RandomizedQueueIterator() {
-      it = 0;
+      it = -1;
       sh = shuffle(rqueue);
     }
 
@@ -216,9 +204,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         throw new NullPointerException("argument array is null");
       }
 
-      int n = a.length;
-      Item[] b = (Item[]) new Object[n];
-      for (int i = 0; i < n; i++) {
+      Item[] b = (Item[]) new Object[a.length];
+      for (int i = 0; i < N; i++) { // only copy items, not nulls
         b[i] = a[i];
       }
       return b;
@@ -231,7 +218,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * @see java.util.Iterator#hasNext()
      */
     public boolean hasNext() {
-      return it < N;
+      return it < N - 1;
     }
 
     /**
@@ -258,7 +245,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
-      return sh[it++];
+      return sh[++it];
     }
   }
 
