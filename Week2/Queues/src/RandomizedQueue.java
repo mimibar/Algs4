@@ -80,8 +80,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   private void resize(int capacity) {
     assert capacity >= N;
     Item[] temp = (Item[]) new Object[capacity];
+    int r = 0;
     for (int i = 0; i < N; i++) {
-      temp[i] = rqueue[i];
+      if (rqueue[i] != null)// Test 1a-1g
+        temp[i] = rqueue[r];
+      else
+        r++;// skip dequed
+      r++;
     }
     rqueue = temp;
   }
@@ -99,8 +104,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       throw new NoSuchElementException("Stack underflow");
     }
 
-    // Do not use the ternary conditional operator on Coursera programming
-    // assignments.
     int r = 0;
     if (N > 1) {
       r = StdRandom.uniform(N - 1);
@@ -109,15 +112,20 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     Item item = rqueue[r];
     rqueue[r] = null; // to avoid loitering
 
-    for (int i = r; i < N - 1; i++) {
-      rqueue[i] = rqueue[i + 1];
-    }
+    // for (int i = r; i < N - 1; i++) {
+    // rqueue[i] = rqueue[i + 1];
+    // }
 
     N--;
 
     // shrink size of array if necessary
     if (N > 0 && N == rqueue.length / 4) {
       resize(rqueue.length / 2);
+    } else {
+      for (int i = r; i < N ; i++) {
+        rqueue[i] = rqueue[i + 1];
+      }
+      rqueue[N] = null;//delete after it has been copied
     }
     return item;
   }
