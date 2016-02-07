@@ -22,10 +22,16 @@ public class Subset {
   public static void main(String[] args) {
     int k = Integer.valueOf(args[0]);
     int N = 0;
-    while (StdIn.hasNextLine()) {
-      StdIn.readString();
 
+    RandomizedQueue<String> s = new RandomizedQueue<String>();
+    while (!StdIn.isEmpty()) {
+      String item = StdIn.readString();
+      s.enqueue(item);
+//      StdOut.println(item);
+        N++;
     }
-
+    while (k-- > 0) {
+      StdOut.println(s.dequeue());
+    }
   }
 }
