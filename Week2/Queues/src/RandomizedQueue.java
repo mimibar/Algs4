@@ -191,13 +191,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
       Item[] b = copy(a);
 
-      //Shuffle only with existing items
-      for (int i = 0; i < N; i++) {
-        int r = i + StdRandom.uniform(N - i); // between i and n-1
-        Item temp = b[i];
-        b[i] = b[r];
-        b[r] = temp;
-      }
+      // Shuffle only with existing items
+      StdRandom.shuffle(b, 0, N);
       return b;
     }
 
@@ -255,6 +250,30 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         throw new NoSuchElementException();
       }
       return sh[++it];
+    }
+
+    /**
+     * We recommend that you create a client class with a name like TestDeque,
+     * where each unit test is a method in this class.
+     */
+    private class TestDeque extends RandomizedQueue<Item> {
+
+      // /**
+      // * Don't forget to test your iterator.
+      // */
+      // private void testIterator() {
+      // Iterator<Item> it = super.iterator();
+      //
+      // assert it.hasNext() == (super.N > 0);
+      // Item t = super.rqueue[0];
+      //
+      // while (it.hasNext()) {
+      // i = it.next();
+      // // assert t.itm.equals(i);
+      // // t = t.next;
+      // }
+      // }
+
     }
   }
 
