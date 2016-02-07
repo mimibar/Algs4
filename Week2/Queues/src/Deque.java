@@ -25,37 +25,59 @@ import edu.princeton.cs.algs4.StdOut;
 public class Deque<Item> implements Iterable<Item> {
 
   // helper linked list class
+  /**
+   * @author mimi
+   *
+   */
   private class Node {
-    private Item item;
+    /**
+     * @TODO Include a comment describing every instance variable.
+     */
+    private Item itm;
+    /**
+     * @TODO Include a comment describing every instance variable.
+     */
     private Node next;
+    /**
+     * @TODO Include a comment describing every instance variable.
+     */
     private Node prev;
 
     /**
      * @param item
      */
-    public Node(Item item) {
-      this.item = item;
+    private Node(final Item item) {
+      itm = item;
     }
 
     /**
      * @param item
-     * @param next
-     * @param prev
+     * @param nex
+     * @param pre
      */
-    public Node(Item item, Node prev, Node next) {
+    private Node(final Item item, Node pre, Node nex) {
       this(item);
-      this.next = next;
-      this.prev = prev;
+      next = nex;
+      prev = pre;
     }
 
   }
 
+  /**
+   * @TODO Include a comment describing every instance variable.
+   */
   private Node head;
+  /**
+   * @TODO Include a comment describing every instance variable.
+   */
   private Node tail;
+  /**
+   * @TODO Include a comment describing every instance variable.
+   */
   private int size;
 
   /**
-   * construct an empty deque
+   * construct an empty deque.
    */
   public Deque() {
     head = null;
@@ -66,34 +88,34 @@ public class Deque<Item> implements Iterable<Item> {
   /**
    * is the deque empty?
    *
-   * @return
+   * @return if size is 0
    */
   public boolean isEmpty() {
     return size == 0;
   }
 
   /**
-   * return the number of items on the deque
+   * return the number of items on the deque.
    *
-   * @return
+   * @return the number of items on the deque
    */
   public int size() {
     return size;
   }
 
   /**
-   * add the item to the front
+   * add the item to the front.
    *
-   * @param item
+   * @param itm
    * @throws java.lang.NullPointerException
    *           if the client attempts to add a null item
    */
-  public void addFirst(Item im) {
-    if (im == null)
+  public void addFirst(Item item) {
+    if (item == null)
       throw new NullPointerException();
 
     Node old = this.head;
-    head = new Node(im, null, old);
+    head = new Node(item, null, old);
 
     if (isEmpty()) {
       tail = head;
@@ -107,21 +129,23 @@ public class Deque<Item> implements Iterable<Item> {
   /**
    * Enqueue: add the item to the end
    *
-   * @param item
+   * @param itm
    * @throws java.lang.NullPointerException
    *           if the client attempts to add a null item
    */
-  public void addLast(Item im) {
-    if (im == null)
+  public void addLast(Item item) {
+    if (item == null) {
       throw new NullPointerException();
+    }
 
     Node old = this.tail;
-    tail = new Node(im, old, null);
+    tail = new Node(item, old, null);
 
-    if (isEmpty())
+    if (isEmpty()) {
       head = tail;
-    else
+    } else {
       old.next = tail;
+    }
 
     size++;
     assert check();
@@ -130,15 +154,16 @@ public class Deque<Item> implements Iterable<Item> {
   /**
    * dequeue: remove and return the item from the front
    *
-   * @return
+   * @return the item from the front
    * @throws java.util.NoSuchElementException
    *           if the client attempts to remove an item from an empty deque
    */
   public Item removeFirst() {
-    if (size == 0)
+    if (size == 0) {
       throw new NoSuchElementException();
+    }
 
-    Item item = head.item;
+    Item item = head.itm;
     size--;
 
     if (isEmpty()) {
@@ -153,17 +178,18 @@ public class Deque<Item> implements Iterable<Item> {
   }
 
   /**
-   * remove and return the item from the end
+   * remove and return the item from the end.
    *
-   * @return
+   * @return the item from the end
    * @throws java.util.NoSuchElementException
    *           if the client attempts to remove an item from an empty deque
    */
   public Item removeLast() {
-    if (size == 0)
+    if (size == 0) {
       throw new NoSuchElementException();
+    }
 
-    Item item = tail.item;
+    Item item = tail.itm;
     size--;
 
     if (isEmpty()) {
@@ -195,26 +221,42 @@ public class Deque<Item> implements Iterable<Item> {
    * an iterator, doesn't implement remove() since it's optional
    */
   private class DequeIterator implements Iterator<Item> {
+    /**
+     * @TODO Include a comment describing every instance variable.
+     */
     private Node current = head;
 
+    /** (non-Javadoc).
+     * @see java.util.Iterator#hasNext()
+     */
     public boolean hasNext() {
       return current != null;
     }
 
+    /** (non-Javadoc).
+     * @see java.util.Iterator#remove()
+     */
     public void remove() {
       throw new UnsupportedOperationException();
     }
 
+    /** (non-Javadoc).
+     * @see java.util.Iterator#next()
+     */
     public Item next() {
-      if (!hasNext())
+      if (!hasNext()) {
         throw new NoSuchElementException();
-      Item item = current.item;
+      }
+      Item item = current.itm;
       current = current.next;
       return item;
     }
   }
 
-  // check internal invariants
+  /**
+   * check internal invariants.
+   * @return
+   */
   private boolean check() {
 
     // check a few properties of instance variable 'first'
@@ -245,29 +287,34 @@ public class Deque<Item> implements Iterable<Item> {
     for (Node x = head; x != null && numberOfNodes <= size; x = x.next) {
       numberOfNodes++;
     }
-    if (numberOfNodes != size)
+    if (numberOfNodes != size) {
       return false;
+    }
 
     return true;
 
   }
 
+  /**
+   * We recommend that you create a client class with a name like TestDeque,
+   * where each unit test is a method in this class.
+   */
   private class TestDeque extends Deque<Item> {
 
     private void testaddFirst(Item im) {
       addFirst(im);
-      assert super.head.item == im;
+      assert super.head.itm == im;
       testSize();
     }
 
     private void testaddLast(Item im) {
       addLast(im);
-      assert super.tail.item == im;
+      assert super.tail.itm == im;
       testSize();
     }
 
     private Item testremoveFirst() {
-      Item i = super.head.item;
+      Item i = super.head.itm;
       Item ft = removeFirst();
       assert ft == i;
       testSize();
@@ -275,7 +322,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private Item testremoveLast() {
-      Item im = super.tail.item;
+      Item im = super.tail.itm;
       Item lt = removeLast();
       assert lt == im;
       testSize();
@@ -283,7 +330,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     /**
-     * check internal consistency of instance variable size
+     * check internal consistency of instance variable size.
      */
     private void testSize() { //
       int numberOfNodes = 0;
@@ -294,6 +341,9 @@ public class Deque<Item> implements Iterable<Item> {
       assert numberOfNodes == super.size;
     }
 
+    /**
+     * Don't forget to test your iterator.
+     */
     private void testIterator() {
       Iterator<Item> it = super.iterator();
 
@@ -303,21 +353,21 @@ public class Deque<Item> implements Iterable<Item> {
 
       while (it.hasNext()) {
         i = it.next();
-        assert t.item.equals(i);
+        assert t.itm.equals(i);
         t = t.next;
       }
     }
 
-    private TestDeque() {
-      super();
-    }
+    // private TestDeque() {
+    // super();
+    // }
 
     /**
      * call addFirst() with the numbers 1 through N in ascending order, then
      * call removeLast() N times, you should see the numbers 1 through N in
      * ascending order.
      */
-    private void N(int N) {
+    private void testN(final int N) {
       for (int i = 1; i <= N; i++) {
         addFirst((Item) (Integer.valueOf(i)));
       }
@@ -329,7 +379,7 @@ public class Deque<Item> implements Iterable<Item> {
   }
 
   /**
-   * unit testing
+   * unit testing.
    *
    * @param args
    */
@@ -340,17 +390,18 @@ public class Deque<Item> implements Iterable<Item> {
     // 5 - 1 2 3 - 4 - - -
     // 5 - 4 - 3 - 2 - 1 -
     Deque.TestDeque s = new Deque<Integer>().new TestDeque();
-    s.N(10);
+    s.testN(10);
 
     s = new Deque<String>().new TestDeque();
 
     while (!StdIn.isEmpty()) {
       String item = StdIn.readString();
-      if (!item.equals("-"))
+      if (!item.equals("-")) {
         s.testaddFirst(item);
-      else {
-        if (!s.isEmpty())
+      } else {
+        if (!s.isEmpty()) {
           StdOut.print(s.testremoveFirst() + " ");
+        }
       }
     }
 
