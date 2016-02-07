@@ -190,7 +190,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       }
 
       Item[] b = copy(a);
-      StdRandom.shuffle(b);
+
+      //Shuffle only with existing items
+      for (int i = 0; i < N; i++) {
+        int r = i + StdRandom.uniform(N - i); // between i and n-1
+        Item temp = b[i];
+        b[i] = b[r];
+        b[r] = temp;
+      }
       return b;
     }
 
