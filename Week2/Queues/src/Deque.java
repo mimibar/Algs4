@@ -7,13 +7,8 @@
  * @howto
  */
 
-import java.lang.NullPointerException;
-import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import edu.princeton.cs.algs4.StdIn;
-import edu.princeton.cs.algs4.StdOut;
 
 /**
  * Dequeue. A double-ended queue or deque (pronounced "deck") is a
@@ -226,21 +221,27 @@ public class Deque<Item> implements Iterable<Item> {
      */
     private Node current = head;
 
-    /** (non-Javadoc).
+    /**
+     * (non-Javadoc).
+     *
      * @see java.util.Iterator#hasNext()
      */
     public boolean hasNext() {
       return current != null;
     }
 
-    /** (non-Javadoc).
+    /**
+     * (non-Javadoc).
+     *
      * @see java.util.Iterator#remove()
      */
     public void remove() {
       throw new UnsupportedOperationException();
     }
 
-    /** (non-Javadoc).
+    /**
+     * (non-Javadoc).
+     *
      * @see java.util.Iterator#next()
      */
     public Item next() {
@@ -255,6 +256,7 @@ public class Deque<Item> implements Iterable<Item> {
 
   /**
    * check internal invariants.
+   *
    * @return
    */
   private boolean check() {
@@ -301,81 +303,81 @@ public class Deque<Item> implements Iterable<Item> {
    */
   private class TestDeque extends Deque<Item> {
 
-    private void testaddFirst(Item im) {
-      addFirst(im);
-      assert super.head.itm == im;
-      testSize();
-    }
-
-    private void testaddLast(Item im) {
-      addLast(im);
-      assert super.tail.itm == im;
-      testSize();
-    }
-
-    private Item testremoveFirst() {
-      Item i = super.head.itm;
-      Item ft = removeFirst();
-      assert ft == i;
-      testSize();
-      return ft;
-    }
-
-    private Item testremoveLast() {
-      Item im = super.tail.itm;
-      Item lt = removeLast();
-      assert lt == im;
-      testSize();
-      return lt;
-    }
-
-    /**
-     * check internal consistency of instance variable size.
-     */
-    private void testSize() { //
-      int numberOfNodes = 0;
-      for (Node x = super.head; x != null
-          && numberOfNodes <= super.size; x = x.next) {
-        numberOfNodes++;
-      }
-      assert numberOfNodes == super.size;
-    }
-
-    /**
-     * Don't forget to test your iterator.
-     */
-    private void testIterator() {
-      Iterator<Item> it = super.iterator();
-
-      assert it.hasNext() == (super.size > 0);
-      Node t = super.head;
-      Item i;
-
-      while (it.hasNext()) {
-        i = it.next();
-        assert t.itm.equals(i);
-        t = t.next;
-      }
-    }
-
-    // private TestDeque() {
-    // super();
+    // private void testaddFirst(Item im) {
+    // addFirst(im);
+    // assert super.head.itm == im;
+    // testSize();
     // }
-
-    /**
-     * call addFirst() with the numbers 1 through N in ascending order, then
-     * call removeLast() N times, you should see the numbers 1 through N in
-     * ascending order.
-     */
-    private void testN(final int N) {
-      for (int i = 1; i <= N; i++) {
-        addFirst((Item) (Integer.valueOf(i)));
-      }
-      testIterator();
-      for (int i = 1; i <= N; i++) {
-        assert (removeLast().equals((Item) (Integer.valueOf(i))));
-      }
-    }
+    //
+    // private void testaddLast(Item im) {
+    // addLast(im);
+    // assert super.tail.itm == im;
+    // testSize();
+    // }
+    //
+    // private Item testremoveFirst() {
+    // Item i = super.head.itm;
+    // Item ft = removeFirst();
+    // assert ft == i;
+    // testSize();
+    // return ft;
+    // }
+    //
+    // private Item testremoveLast() {
+    // Item im = super.tail.itm;
+    // Item lt = removeLast();
+    // assert lt == im;
+    // testSize();
+    // return lt;
+    // }
+    //
+    // /**
+    // * check internal consistency of instance variable size.
+    // */
+    // private void testSize() { //
+    // int numberOfNodes = 0;
+    // for (Node x = super.head; x != null
+    // && numberOfNodes <= super.size; x = x.next) {
+    // numberOfNodes++;
+    // }
+    // assert numberOfNodes == super.size;
+    // }
+    //
+    // /**
+    // * Don't forget to test your iterator.
+    // */
+    // private void testIterator() {
+    // Iterator<Item> it = super.iterator();
+    //
+    // assert it.hasNext() == (super.size > 0);
+    // Node t = super.head;
+    // Item i;
+    //
+    // while (it.hasNext()) {
+    // i = it.next();
+    // assert t.itm.equals(i);
+    // t = t.next;
+    // }
+    // }
+    //
+    // // private TestDeque() {
+    // // super();
+    // // }
+    //
+    // /**
+    // * call addFirst() with the numbers 1 through N in ascending order, then
+    // * call removeLast() N times, you should see the numbers 1 through N in
+    // * ascending order.
+    // */
+    // private void testN(final int N) {
+    // for (int i = 1; i <= N; i++) {
+    // addFirst((Item) (Integer.valueOf(i)));
+    // }
+    // testIterator();
+    // for (int i = 1; i <= N; i++) {
+    // assert (removeLast().equals((Item) (Integer.valueOf(i))));
+    // }
+    // }
   }
 
   /**
@@ -384,28 +386,28 @@ public class Deque<Item> implements Iterable<Item> {
    * @param args
    */
   public static void main(String[] args) {
-
-    // 1 2 3 4 5 - - - - -
-    // 1 2 5 - 3 4 - - - -
-    // 5 - 1 2 3 - 4 - - -
-    // 5 - 4 - 3 - 2 - 1 -
-    Deque.TestDeque s = new Deque<Integer>().new TestDeque();
-    s.testN(10);
-
-    s = new Deque<String>().new TestDeque();
-
-    while (!StdIn.isEmpty()) {
-      String item = StdIn.readString();
-      if (!item.equals("-")) {
-        s.testaddFirst(item);
-      } else {
-        if (!s.isEmpty()) {
-          StdOut.print(s.testremoveFirst() + " ");
-        }
-      }
-    }
-
-    StdOut.println("(" + s.size() + " left on stack)");
+    //
+    // // 1 2 3 4 5 - - - - -
+    // // 1 2 5 - 3 4 - - - -
+    // // 5 - 1 2 3 - 4 - - -
+    // // 5 - 4 - 3 - 2 - 1 -
+    // Deque.TestDeque s = new Deque<Integer>().new TestDeque();
+    // s.testN(10);
+    //
+    // s = new Deque<String>().new TestDeque();
+    //
+    // while (!StdIn.isEmpty()) {
+    // String item = StdIn.readString();
+    // if (!item.equals("-")) {
+    // s.testaddFirst(item);
+    // } else {
+    // if (!s.isEmpty()) {
+    // StdOut.print(s.testremoveFirst() + " ");
+    // }
+    // }
+    // }
+    //
+    // StdOut.println("(" + s.size() + " left on stack)");
 
   }
 

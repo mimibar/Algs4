@@ -31,7 +31,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   /**
    * construct an empty randomized queue.
    */
-  @SuppressWarnings("unchecked")
   public RandomizedQueue() {
     rqueue = (Item[]) new Object[2];
     N = 0;
@@ -80,7 +79,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
    */
   private void resize(int capacity) {
     assert capacity >= N;
-    @SuppressWarnings("unchecked")
     Item[] temp = (Item[]) new Object[capacity];
     for (int i = 0; i < N; i++) {
       temp[i] = rqueue[i];
@@ -100,7 +98,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     if (isEmpty()) {
       throw new NoSuchElementException("Stack underflow");
     }
-    int r = N > 1 ? StdRandom.uniform(N - 1) : 0;
+
+    // Do not use the ternary conditional operator on Coursera programming
+    // assignments.
+    int r = 0;
+    if (N > 1) {
+      r = StdRandom.uniform(N - 1);
+    }
+
     Item item = rqueue[r];
     rqueue[r] = null; // to avoid loitering
 
@@ -129,7 +134,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     if (isEmpty()) {
       throw new NoSuchElementException();
     }
-    int r = StdRandom.uniform(N - 1);
+    int r = 0;
+    if (N > 1) {// Test 6a
+      r = StdRandom.uniform(N - 1);
+    }
     return rqueue[r];
   }
 
@@ -160,6 +168,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * the shuffled array.
      */
     private Item[] sh;
+
+    /**
+    *
+    */
+    private RandomizedQueueIterator() {
+      it = 0;
+      sh = shuffle(rqueue);
+    }
 
     /**
      * Given an array, how can I rearrange the entries in random order? Use
@@ -193,20 +209,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       }
 
       int n = a.length;
-      @SuppressWarnings("unchecked")
       Item[] b = (Item[]) new Object[n];
       for (int i = 0; i < n; i++) {
         b[i] = a[i];
       }
       return b;
-    }
-
-    /**
-     *
-     */
-    private RandomizedQueueIterator() {
-      it = 0;
-      sh = shuffle(rqueue);
     }
 
     /**

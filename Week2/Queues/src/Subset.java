@@ -20,7 +20,7 @@ public class Subset {
    * @param args
    */
   public static void main(String[] args) {
-    int k = Integer.valueOf(args[0]);
+    int k = Integer.parseInt(args[0]);
     int N = 0;
 
     RandomizedQueue<String> s = new RandomizedQueue<String>();
