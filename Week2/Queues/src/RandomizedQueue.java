@@ -106,7 +106,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     Item item = rqueue[r];
-    rqueue[r] = rqueue[N - 1]; // Test 1a-1g: exchange last with dequeued
+    // Test 1a-1g: exchange last with dequeued
+    rqueue[r] = rqueue[N - 1];
+    rqueue[N - 1] = null;
 
     N--;
 
