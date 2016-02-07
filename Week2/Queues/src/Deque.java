@@ -95,10 +95,9 @@ public class Deque<Item> implements Iterable<Item> {
     Node old = this.head;
     head = new Node(im, null, old);
 
-    if (isEmpty()){
+    if (isEmpty()) {
       tail = head;
-      }
-    else // if (old != null)
+    } else // if (old != null)
       old.prev = head;
 
     size++;
@@ -258,17 +257,20 @@ public class Deque<Item> implements Iterable<Item> {
     private void testaddFirst(Item im) {
       addFirst(im);
       assert super.head.item == im;
+      testSize();
     }
 
     private void testaddLast(Item im) {
       addLast(im);
       assert super.tail.item == im;
+      testSize();
     }
 
     private Item testremoveFirst() {
       Item i = super.head.item;
       Item ft = removeFirst();
       assert ft == i;
+      testSize();
       return ft;
     }
 
@@ -276,7 +278,34 @@ public class Deque<Item> implements Iterable<Item> {
       Item im = super.tail.item;
       Item lt = removeLast();
       assert lt == im;
+      testSize();
       return lt;
+    }
+
+    /**
+     * check internal consistency of instance variable size
+     */
+    private void testSize() { //
+      int numberOfNodes = 0;
+      for (Node x = super.head; x != null
+          && numberOfNodes <= super.size; x = x.next) {
+        numberOfNodes++;
+      }
+      assert numberOfNodes == super.size;
+    }
+
+    private void testIterator() {
+      Iterator<Item> it = super.iterator();
+
+      assert it.hasNext() == (super.size > 0);
+      Node t = super.head;
+      Item i;
+
+      while (it.hasNext()) {
+        i = it.next();
+        assert t.item.equals(i);
+        t = t.next;
+      }
     }
 
     private TestDeque() {
@@ -292,6 +321,7 @@ public class Deque<Item> implements Iterable<Item> {
       for (int i = 1; i <= N; i++) {
         addFirst((Item) (Integer.valueOf(i)));
       }
+      testIterator();
       for (int i = 1; i <= N; i++) {
         assert (removeLast().equals((Item) (Integer.valueOf(i))));
       }
