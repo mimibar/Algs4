@@ -1,10 +1,8 @@
 /******************************************************************************
- *  Compilation:  javac Point.java
- *  Execution:    java Point
- *  Dependencies: none
+ * Compilation: javac Point.java Execution: java Point Dependencies: none
  *
- *  An immutable data type for points in the plane.
- *  For use on Coursera, Algorithms Part I programming assignment.
+ * An immutable data type for points in the plane. For use on Coursera,
+ * Algorithms Part I programming assignment.
  *
  ******************************************************************************/
 /**
@@ -84,7 +82,7 @@ public class Point implements Comparable<Point> {
     assert (slopeTo(new Point(x, y + 1)) == Double.POSITIVE_INFINITY);
     assert (slopeTo(new Point(x + 1, y)) == 0);
 
-    return (double)(that.y - this.y) / (that.x - this.x);
+    return (double) (that.y - this.y) / (that.x - this.x);
   }
 
   /**
@@ -122,8 +120,8 @@ public class Point implements Comparable<Point> {
       public int compare(Point p1, Point p2) {
         double s1 = slopeTo(p1);
         double s2 = slopeTo(p2);
-        if (s1 < s2) return -1;
-        if (s1 > s2) return 1;
+        if (Double.compare(s1, s2) < 0) return -1;
+        if (Double.compare(s1, s2) > 0) return 1;
 
         return 0;
       }
@@ -149,7 +147,7 @@ public class Point implements Comparable<Point> {
   public static void main(String[] args) {
     Point p = new Point(10000, 0);
     Point q = new Point(3000, 7000);
-    assert (p.compareTo(p) == 0);
+    // assert (p.compareTo(p) == 0);
     assert (p.compareTo(q) < 0);
     assert (q.compareTo(p) > 0);
     StdOut.println("good");

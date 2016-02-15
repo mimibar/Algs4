@@ -41,7 +41,7 @@ public class CollinearClient {
       int y = in.readInt();
       points[i] = new Point(x, y);
       points[i].draw();
-      StdDraw.textLeft(x + 300, y + 30, x + ",\n" + y);
+//      StdDraw.textLeft(x + 300, y + 30, x + ",\n" + y);
     }
 
     StdDraw.show();
@@ -51,6 +51,17 @@ public class CollinearClient {
     BruteCollinearPoints collinear = new BruteCollinearPoints(points);
     StdOut.println("Line Segments");
     for (LineSegment segment : collinear.segments()) {
+      StdOut.println(segment);
+//      segment.draw();
+    }
+    StdDraw.text(16384, 32038, args[0]);
+
+    StdDraw.show();
+    StdDraw.setPenColor(StdDraw.GREEN);
+
+    // print and draw the line segments
+    FastCollinearPoints fast = new FastCollinearPoints(points);
+    for (LineSegment segment : fast.segments()) {
       StdOut.println(segment);
       segment.draw();
     }

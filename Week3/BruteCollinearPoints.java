@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * @name Miriam Lee
@@ -35,11 +34,10 @@ public class BruteCollinearPoints {
     Arrays.sort(points);
 
     segments = new ArrayList<LineSegment>();
-    Comparator<Point> so;
 
     for (int i = 0; i < points.length - 3; i++) {
       assertNotNull(points[i]);
-      so = points[i].slopeOrder();
+
       for (int j = i + 1; j < points.length - 2; j++) {
         isValid(points, j);
 
@@ -66,9 +64,10 @@ public class BruteCollinearPoints {
   }
 
   /**
-   * @TODO Include a bold (or Javadoc) comment describing every method.
    * @param points
    * @param k
+   * @throws IllegalArgumentException
+   *           if repeated
    */
   private void isValid(Point[] points, int i) {
     assertNotNull(points[i]);
@@ -77,8 +76,9 @@ public class BruteCollinearPoints {
   }
 
   /**
-   * @TODO Include a bold (or Javadoc) comment describing every method.
    * @param point
+   * @throws NullPointerException
+   *           if null
    */
   private void assertNotNull(Point point) {
     if (point == null) throw new NullPointerException();
