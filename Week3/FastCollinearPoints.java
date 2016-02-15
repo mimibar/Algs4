@@ -26,20 +26,24 @@ public class FastCollinearPoints {
    *           if the argument to the constructor contains a repeated point.
    */
   public FastCollinearPoints(Point[] points) {
+
     segments = new ArrayList<LineSegment>();
     if (points == null) throw new NullPointerException();
+
+    Point[] p = points.clone(); // Test 14: Check that data type does not mutate
+                                // the constructor argument
 
     int a, b, count;
 
     // line segment containing 4 (or more) points
-    for (int i = 0; i < points.length - 3; i++) {
-      assertNotNull(points[i]);
+    for (int i = 0; i < p.length - 3; i++) {
+      assertNotNull(p[i]);
 
       // Sort the points according to the slopes they makes with p.
-      Arrays.sort(points, i + 1, points.length, points[i].slopeOrder());
-      assertNotRepeated(points, i, i + 1); // possible bug here...
+      Arrays.sort(p, i + 1, p.length, p[i].slopeOrder());
+      assertNotRepeated(p, i, i + 1); // possible bug here...
 
-      if (points[i].compareTo(points[i + 1]) > 0) {
+      if (p[i].compareTo(p[i + 1]) > 0) {
         a = i + 1;
         b = i;
       }
@@ -47,24 +51,24 @@ public class FastCollinearPoints {
         a = i;
         b = i + 1;
       }
-
       count = 2;
 
-      for (int j = i + 2; j < points.length; j++) {
-        assertNotRepeated(points, i, j);
+      for (int j = i + 2; j < p.length; j++) {
+        assertNotRepeated(p, i, j);
         // same slope meaning same line segment, collinear
-        if (points[a].slopeTo(points[b]) == points[a].slopeTo(points[j])) {
+        if (p[a].slopeTo(p[b]) == p[a].slopeTo(p[j])) {
           // store points not indices
-          if (points[j].compareTo(points[b]) > 0)
+          if (p[j].compareTo(p[b]) > 0)
             b = j;
-          else if (points[j].compareTo(points[a]) < 0) a = j;
+          else if (p[j].compareTo(p[a]) < 0) a = j;
           count++;
         }
         else {
           if (count > 3) {
-            segments.add(new LineSegment(points[a], points[b]));
+            segments.add(new LineSegment(p[a], p[b]));
           }
           if (points[i].compareTo(points[j]) > 0) {
+          if (p[i].compareTo(p[j]) > 0) {
             a = j;
             b = i;
           }
@@ -76,7 +80,9 @@ public class FastCollinearPoints {
         }
       }
       if (count > 3) {
-        segments.add(new LineSegment(points[a], points[b]));
+        // Try only adding a segment if the point your sorting with respect to
+        // is the minimum point on the line (remember we have two sort methods).
+        segments.add(new LineSegment(p[a], p[b]));
       }
 
     }
