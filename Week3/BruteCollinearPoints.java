@@ -30,24 +30,26 @@ public class BruteCollinearPoints {
    *           if the argument to the constructor contains a repeated point.
    */
   public BruteCollinearPoints(Point[] points) {
+
     if (points == null) throw new NullPointerException();
-    Arrays.sort(points);
+    Point[] p = points.clone();// Test 11: Check that data type does not mutate
+                               // the constructor argument
+    Arrays.sort(p);
 
     segments = new ArrayList<LineSegment>();
 
-    for (int i = 0; i < points.length; i++) {
-      isValid(points, i); // Test 14: Check that the constructor throws an
-                          // exception if duplicate points
+    for (int i = 0; i < p.length; i++) {
+      isValid(p, i); // Test 14: Check that the constructor throws an
+                     // exception if duplicate points
 
-      for (int j = i + 1; j < points.length - 2; j++) {
+      for (int j = i + 1; j < p.length - 2; j++) {
 
-        for (int k = j + 1; k < points.length - 1; k++) {
-          if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[k])) {
+        for (int k = j + 1; k < p.length - 1; k++) {
+          if (p[i].slopeTo(p[j]) == p[i].slopeTo(p[k])) {
 
-            for (int l = k + 1; l < points.length; l++) {
-              if (points[i].slopeTo(points[j]) == points[i]
-                  .slopeTo(points[l])) {
-                segments.add(new LineSegment(points[i], points[l]));
+            for (int l = k + 1; l < p.length; l++) {
+              if (p[i].slopeTo(p[j]) == p[i].slopeTo(p[l])) {
+                segments.add(new LineSegment(p[i], p[l]));
               }
 
             }
