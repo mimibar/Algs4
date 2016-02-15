@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+
 /**
  * @name Miriam Lee
  * @date Feb 14, 2016
@@ -14,6 +18,8 @@
  *
  */
 public class BruteCollinearPoints {
+  private ArrayList<LineSegment> segments;
+
   /**
    * finds all line segments containing 4 points
    *
@@ -25,6 +31,57 @@ public class BruteCollinearPoints {
    *           if the argument to the constructor contains a repeated point.
    */
   public BruteCollinearPoints(Point[] points) {
+    if (points == null) throw new NullPointerException();
+    Arrays.sort(points);
+
+    segments = new ArrayList<LineSegment>();
+    Comparator<Point> so;
+
+    for (int i = 0; i < points.length - 3; i++) {
+      assertNotNull(points[i]);
+      so = points[i].slopeOrder();
+      for (int j = i + 1; j < points.length - 2; j++) {
+        isValid(points, j);
+
+        for (int k = j + 1; k < points.length - 1; k++) {
+          isValid(points, k);
+
+          // if (so.compare(points[j], points[k]) == 0) {
+          if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[k])) {
+
+            for (int l = k + 1; l < points.length; l++) {
+              isValid(points, l);
+
+              // if (so.compare(points[k], points[l]) == 0) {
+              if (points[i].slopeTo(points[j]) == points[i]
+                  .slopeTo(points[l])) {
+                segments.add(new LineSegment(points[i], points[l]));
+              }
+
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param points
+   * @param k
+   */
+  private void isValid(Point[] points, int i) {
+    assertNotNull(points[i]);
+    if (points[i].compareTo(points[i - 1]) == 0)
+      throw new IllegalArgumentException();
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param point
+   */
+  private void assertNotNull(Point point) {
+    if (point == null) throw new NullPointerException();
   }
 
   /**
@@ -33,7 +90,7 @@ public class BruteCollinearPoints {
    * @return
    */
   public int numberOfSegments() {
-    return 0;
+    return segments.size();
   }
 
   /**
@@ -46,6 +103,7 @@ public class BruteCollinearPoints {
    * @return
    */
   public LineSegment[] segments() {
-    return null;
+    return (LineSegment[]) segments
+        .toArray(new LineSegment[numberOfSegments()]);
   }
 }

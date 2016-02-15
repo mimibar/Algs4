@@ -30,27 +30,32 @@ public class CollinearClient {
     In in = new In(args[0]);
     int N = in.readInt();
     Point[] points = new Point[N];
+    // draw the points
+    StdDraw.show();
+    StdDraw.setXscale(0, 32768);
+    StdDraw.setYscale(0, 32768);
+    StdDraw.setPenColor(StdDraw.RED);
+    StdDraw.setPenRadius(0.01);
     for (int i = 0; i < N; i++) {
       int x = in.readInt();
       int y = in.readInt();
       points[i] = new Point(x, y);
+      points[i].draw();
+      StdDraw.textLeft(x + 300, y + 30, x + ",\n" + y);
     }
 
-    // draw the points
-    StdDraw.show(0);
-    StdDraw.setXscale(0, 32768);
-    StdDraw.setYscale(0, 32768);
-    for (Point p : points) {
-      p.draw();
-    }
     StdDraw.show();
+    StdDraw.setPenColor(StdDraw.BLUE);
 
     // print and draw the line segments
     BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+    StdOut.println("Line Segments");
     for (LineSegment segment : collinear.segments()) {
       StdOut.println(segment);
       segment.draw();
     }
+    StdDraw.text(16384, 32038, args[0]);
+
   }
 
 }
