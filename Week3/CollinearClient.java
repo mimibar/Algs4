@@ -56,6 +56,11 @@ public class CollinearClient {
     }
     StdDraw.text(16384, 32038, args[0]);
 
+//    collinear = new BruteCollinearPoints(
+//        new Point[] { new Point(10694, 2819), new Point(10694, 2819) });
+//    collinear = new BruteCollinearPoints(
+//        new Point[] { new Point(19963, 5058), new Point(14721, 22548),
+//            new Point(14721, 22548), new Point(3818, 16580) });
     StdDraw.show();
     StdDraw.setPenColor(StdDraw.GREEN);
 

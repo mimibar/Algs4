@@ -35,22 +35,16 @@ public class BruteCollinearPoints {
 
     segments = new ArrayList<LineSegment>();
 
-    for (int i = 0; i < points.length - 3; i++) {
-      assertNotNull(points[i]);
+    for (int i = 0; i < points.length; i++) {
+      isValid(points, i); // Test 14: Check that the constructor throws an
+                          // exception if duplicate points
 
       for (int j = i + 1; j < points.length - 2; j++) {
-        isValid(points, j);
 
         for (int k = j + 1; k < points.length - 1; k++) {
-          isValid(points, k);
-
-          // if (so.compare(points[j], points[k]) == 0) {
           if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[k])) {
 
             for (int l = k + 1; l < points.length; l++) {
-              isValid(points, l);
-
-              // if (so.compare(points[k], points[l]) == 0) {
               if (points[i].slopeTo(points[j]) == points[i]
                   .slopeTo(points[l])) {
                 segments.add(new LineSegment(points[i], points[l]));
@@ -64,14 +58,19 @@ public class BruteCollinearPoints {
   }
 
   /**
+   * Checks if not null and if not teh same as the previous
+   *
    * @param points
-   * @param k
+   * @param i
    * @throws IllegalArgumentException
    *           if repeated
    */
   private void isValid(Point[] points, int i) {
+
     assertNotNull(points[i]);
-    if (points[i].compareTo(points[i - 1]) == 0)
+    // Test 14: Check that the constructor throws an exception if duplicate
+    // points
+    if (i > 0 && points[i].compareTo(points[i - 1]) == 0)
       throw new IllegalArgumentException();
   }
 
