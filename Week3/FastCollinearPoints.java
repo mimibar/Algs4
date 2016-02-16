@@ -7,7 +7,7 @@
  */
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * @author mimi
@@ -15,12 +15,14 @@ import java.util.HashMap;
  */
 public class FastCollinearPoints {
   private ArrayList<LineSegment> segments;
+  // java.lang.UnsupportedOperationException: calling hashCode() is not
+  // permitted on this assignment
   /**
    * Line Segments to avoid duplicates
    *
    * <endpoint index, slope>
    */
-  private HashMap<Point, ArrayList<Double>> ls;
+  private TreeMap<Point, ArrayList<Double>> ls;
 
   /**
    * finds all line segments containing 4 or more points
@@ -38,10 +40,9 @@ public class FastCollinearPoints {
     if (points == null) throw new NullPointerException();
     // Test 14: Check that data type does not mutate the constructor argument
     final Point[] p = points.clone();
-
     Arrays.sort(p); // will throw exception if nulls
     Point[] s = null;
-    ls = new HashMap<Point, ArrayList<Double>>();
+    ls = new TreeMap<Point, ArrayList<Double>>();
 
     int b = -1;
     int count = 0;

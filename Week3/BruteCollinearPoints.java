@@ -32,7 +32,7 @@ public class BruteCollinearPoints {
   public BruteCollinearPoints(Point[] points) {
 
     if (points == null) throw new NullPointerException();
-    Point[] p = points.clone();// Test 11: Check that data type does not mutate
+    Point[] p = points.clone(); // Test 11: Check that data type does not mutate
                                // the constructor argument
     Arrays.sort(p);
 
