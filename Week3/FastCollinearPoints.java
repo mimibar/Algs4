@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * @name Miriam Lee
@@ -7,6 +5,9 @@ import java.util.Arrays;
  * @purpose
  * @howto
  */
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * @author mimi
@@ -14,6 +15,12 @@ import java.util.Arrays;
  */
 public class FastCollinearPoints {
   private ArrayList<LineSegment> segments;
+  /**
+   * Line Segments to avoid duplicates
+   *
+   * <endpoint index, slope>
+   */
+  private HashMap<Point, ArrayList<Double>> ls;
 
   /**
    * finds all line segments containing 4 or more points
@@ -26,63 +33,73 @@ public class FastCollinearPoints {
    *           if the argument to the constructor contains a repeated point.
    */
   public FastCollinearPoints(Point[] points) {
-
     segments = new ArrayList<LineSegment>();
+
     if (points == null) throw new NullPointerException();
+    // Test 14: Check that data type does not mutate the constructor argument
+    final Point[] p = points.clone();
 
-    Point[] p = points.clone(); // Test 14: Check that data type does not mutate
-                                // the constructor argument
+    Arrays.sort(p); // will throw exception if nulls
+    Point[] s = null;
+    ls = new HashMap<Point, ArrayList<Double>>();
 
-    int a, b, count;
+    int b = -1;
+    int count = 0;
+
+    assertNotNull(p[0]);
+    if (p.length > 1) assertNotNull(p[1]);
 
     // line segment containing 4 (or more) points
-    for (int i = 0; i < p.length - 3; i++) {
-      assertNotNull(p[i]);
+    // Test 17: Check that the constructor throws an exception if duplicate
+    // points
+    for (int i = 0; i < p.length; i++) {
 
-      // Sort the points according to the slopes they makes with p.
-      Arrays.sort(p, i + 1, p.length, p[i].slopeOrder());
-      assertNotRepeated(p, i, i + 1); // possible bug here...
-
-      if (p[i].compareTo(p[i + 1]) > 0) {
-        a = i + 1;
-        b = i;
-      }
-      else {
-        a = i;
+      if (p.length > 1 && i < p.length - 1) {
+        s = p.clone();
+        // Sort the points according to the slopes they makes with p.
         b = i + 1;
-      }
-      count = 2;
+        Arrays.sort(s, b, p.length, p[i].slopeOrder());
+        assertNotRepeated(p, i, b); // possible bug here...
 
+        count = 2;
+      }
       for (int j = i + 2; j < p.length; j++) {
+        assertNotNull(p[j]);
         assertNotRepeated(p, i, j);
-        // same slope meaning same line segment, collinear
-        if (p[a].slopeTo(p[b]) == p[a].slopeTo(p[j])) {
-          // store points not indices
-          if (p[j].compareTo(p[b]) > 0)
-            b = j;
-          else if (p[j].compareTo(p[a]) < 0) a = j;
+        // same slope to i, meaning same line segment, collinear
+        if (p[i].slopeTo(s[b]) == p[i].slopeTo(s[j])) {
+
+          if (s[j].compareTo(s[b]) > 0) b = j;
           count++;
         }
         else {
-          if (count > 3) {
-            segments.add(new LineSegment(p[a], p[b]));
-          }
-          if (points[i].compareTo(points[j]) > 0) {
-          if (p[i].compareTo(p[j]) > 0) {
-            a = j;
-            b = i;
-          }
-          else {
-            a = i;
-            b = j;
-          }
+          if (count > 3) addSegment(s, i, b);
+          b = j;
           count = 2;
         }
       }
       if (count > 3) {
-        // Try only adding a segment if the point your sorting with respect to
-        // is the minimum point on the line (remember we have two sort methods).
-        segments.add(new LineSegment(p[a], p[b]));
+        addSegment(s, i, b);
+        count = 0;
+      }
+    }
+  }
+
+  /**
+   * Try only adding a segment if the point your sorting with respect to is the
+   * minimum point on the line (remember we have two sort methods).
+   */
+  private void addSegment(Point[] p, int a, int b) {
+    double s = p[a].slopeTo(p[b]);
+
+    if (!(ls.containsKey(p[b]) && ls.get(p[b]).contains(s))) {
+      segments.add(new LineSegment(p[a], p[b]));
+
+      if (!ls.containsKey(p[b])) {
+        ls.put(p[b], new ArrayList<Double>(Arrays.asList(s)));
+      }
+      else {
+        ls.get(p[b]).add(s);
       }
 
     }

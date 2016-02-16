@@ -40,8 +40,8 @@ public class CollinearClient {
       int x = in.readInt();
       int y = in.readInt();
       points[i] = new Point(x, y);
-      points[i].draw();
-//      StdDraw.textLeft(x + 300, y + 30, x + ",\n" + y);
+//      points[i].draw();
+//       StdDraw.textLeft(x + 300, y + 30, x + ",\n" + y);
     }
 
     StdDraw.show();
@@ -49,29 +49,36 @@ public class CollinearClient {
 
     // print and draw the line segments
     BruteCollinearPoints collinear = new BruteCollinearPoints(points);
-    StdOut.println("Line Segments");
+    StdOut.println("Brute Line Segments " + collinear.segments().length);
     for (LineSegment segment : collinear.segments()) {
       StdOut.println(segment);
-//      segment.draw();
+//       segment.draw();
     }
-    StdDraw.text(16384, 32038, args[0]);
+//    StdDraw.text(16384, 32038, args[0]);
 
-//    collinear = new BruteCollinearPoints(
-//        new Point[] { new Point(10694, 2819), new Point(10694, 2819) });
-//    collinear = new BruteCollinearPoints(
-//        new Point[] { new Point(19963, 5058), new Point(14721, 22548),
-//            new Point(14721, 22548), new Point(3818, 16580) });
+    // collinear = new BruteCollinearPoints(
+    // new Point[] { new Point(10694, 2819), new Point(10694, 2819) });
+    // collinear = new BruteCollinearPoints(
+    // new Point[] { new Point(19963, 5058), new Point(14721, 22548),
+    // new Point(14721, 22548), new Point(3818, 16580) });
     StdDraw.show();
     StdDraw.setPenColor(StdDraw.GREEN);
 
     // print and draw the line segments
     FastCollinearPoints fast = new FastCollinearPoints(points);
+    StdOut.println("Fast Line Segments " + fast.segments().length);
     for (LineSegment segment : fast.segments()) {
       StdOut.println(segment);
       segment.draw();
     }
     StdDraw.text(16384, 32038, args[0]);
-
+    // Test 17: Check that the constructor throws an exception if duplicate
+    // points
+//    fast = new FastCollinearPoints(
+//        new Point[] { new Point(26483, 20232), new Point(26483, 20232) });
+//    fast = new FastCollinearPoints(
+//        new Point[] { new Point(28447, 24962), null,//new Point(1431, 30469),
+//            new Point(30356, 8942), new Point(30356, 8942) });
   }
 
 }
