@@ -15,9 +15,10 @@ import edu.princeton.cs.algs4.Stack;
  *
  */
 public class Board {
-
   private int[][] tiles;
   private int N;
+  // Cache
+  private int ham = -1, man = -1;
 
   /**
    * construct a board from an N-by-N array of blocks (where blocks[i][j] =
@@ -49,11 +50,13 @@ public class Board {
    * @return
    */
   public int hamming() {
-    int ham = 0;
 
-    for (int m = 0; m < N; m++) {
-      for (int n = 0; n < N; n++) {
-        if (tiles[m][n] != 0 && tiles[m][n] != n + 1 + (m * (N))) ham++;
+    if (ham == -1) {
+      ham = 0;
+      for (int m = 0; m < N; m++) {
+        for (int n = 0; n < N; n++) {
+          if (tiles[m][n] != 0 && tiles[m][n] != n + 1 + (m * (N))) ham++;
+        }
       }
     }
     return ham;
@@ -66,17 +69,24 @@ public class Board {
    * @return
    */
   public int manhattan() {
-    int man = 0;
+    if (man == -1) {
+      man = 0;
+      for (int m = 0; m < N; m++) {
+        for (int n = 0; n < N; n++) {
+          if (tiles[m][n] != 0 && tiles[m][n] != n + 1 + (m * (N))) {
 
-    for (int m = 0; m < N; m++) {
-      for (int n = 0; n < N; n++) {
-        if (tiles[m][n] != 0 && tiles[m][n] != n + 1 + (m * (N))) {
-          man += m - (m * N) + n - (n + 1); // real minus ideal
-          // tiles[m][n]/(m*N)...
+            man += abs(m - ((tiles[m][n] - 1) / N))
+                + abs(n - ((tiles[m][n] - 1) % N)); // real minus ideal
+          }
         }
       }
     }
     return man;
+  }
+
+  private int abs(int i) {
+    if (i < 0) return i * (-1);
+    return i;
   }
 
   /**
@@ -156,6 +166,7 @@ public class Board {
 
     // search blank square
     int m = 0, n = 0;
+
     found:
 
     for (m = 0; m < N; m++) {
