@@ -104,10 +104,20 @@ public class Board {
    */
   public Board twin() {
     Board b = new Board(tiles);
-    int temp = b.tiles[0][0];
-    b.tiles[0][0] = b.tiles[0][1];
-    b.tiles[0][1] = temp;
-    exch(b.tiles, 0, 0, 0, 1);
+
+    int i = 0, j = 0, x = 0, y = 0;
+    while (b.tiles[i][j] == 0) {
+      j++;
+    }
+    if (j < N - 1 && b.tiles[i][j + 1] != 0) {
+      x = i;
+      y = j + 1;
+    }
+    else {
+      x = i + 1;
+      y = j;
+    }
+    exch(b.tiles, i, j, x, y);
     return b;
   }
 

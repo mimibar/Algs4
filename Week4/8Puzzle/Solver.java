@@ -76,15 +76,21 @@ public class Solver {
    */
   public Solver(Board initial) {
     ini = initial;
+
     // First, insert the initial search node into a priority queue.
     pq = new MinPQ<SearchNode>();
+    MinPQ<SearchNode> pqt = new MinPQ<SearchNode>();
+
     pq.insert(new SearchNode(initial));
+    pqt.insert(new SearchNode(initial.twin()));
 
     SearchNode node = pq.delMin();
+    SearchNode twin = pqt.delMin();
+
     // Repeat this procedure until the search node dequeued corresponds to a
     // goal board. The success of this approach hinges on the choice of priority
     // function for a search node.
-    while (!node.b.isGoal()) { // TODO -1 moves when unsolvable
+    while (!node.b.isGoal() && !twin.b.isGoal()) {
 
       for (Board x : node.b.neighbors()) {
         // critical optimization: don't enqueue a neighbor if its board is the
@@ -93,13 +99,25 @@ public class Solver {
 
           pq.insert(new SearchNode(x, node));
       }
+      for (Board x : twin.b.neighbors()) {
+        if (twin.prev == null || !x.equals(twin.prev.b))
+          pqt.insert(new SearchNode(x, twin));
+      }
       // Then, delete from the priority queue the search node with the minimum
       // priority, and insert onto the priority queue all neighboring search
       // nodes (those that can be reached in one move from the dequeued search
       // node).
       node = pq.delMin();
+      twin = pqt.delMin();
     }
-    sol = new SearchNode(node.b, node.prev);
+
+    if (node.b.isGoal()) {
+      sol = new SearchNode(node.b, node.prev);
+      solvable = true;
+    }
+    else if (twin.b.isGoal()) {
+      solvable = false;
+    }
   }
 
   /**
@@ -108,9 +126,7 @@ public class Solver {
    * @return
    */
   public boolean isSolvable() {
-
     return solvable;
-
   }
 
   /**
@@ -119,7 +135,8 @@ public class Solver {
    * @return
    */
   public int moves() {
-    return sol.moves;
+    if (sol != null) return sol.moves;
+    return -1;
   }
 
   /**
@@ -129,7 +146,7 @@ public class Solver {
    */
   public Iterable<Board> solution() {
 
-    if (moves() == -1) return null;
+    if (!solvable) return null;
 
     // Add the items you want to a Stack<Board> or Queue<Board> and return that.
     Queue<Board> solution = new Queue<>();
