@@ -29,8 +29,9 @@ public class Solver {
    */
   private class SearchNode implements Comparable<SearchNode> {
     private Board b;
-    private int moves;// g(n)
+    private int moves; // g(n)
     private SearchNode prev;
+    private int man, ham = -1;
 
     /**
      * @param initial
@@ -38,8 +39,7 @@ public class Solver {
      */
     SearchNode(Board board) {
       b = board;
-      moves = 0;
-      prev = null;
+      man = b.manhattan();
     }
 
     /**
@@ -47,9 +47,11 @@ public class Solver {
      * @param prev
      */
     SearchNode(Board x, SearchNode node) {
-      b = x;
+      this(x);
+      if (node == null) throw new NullPointerException();
       prev = node;
       moves = prev.moves + 1;
+      man += moves;
     }
 
     /**
@@ -64,15 +66,22 @@ public class Solver {
     @Override
     public int compareTo(SearchNode n) {
 
-      int bp = this.b.manhattan() + this.moves;
-      int np = n.b.manhattan() + n.moves;
-
-      if (bp == np) {
-        if (this.b.hamming() + this.moves > n.b.hamming() + n.moves) return 1;
-        return -1;
+      if (man == n.man) {
+        if (ham() > n.ham()) return 1;
+        if (ham() < n.ham()) return -1;
+        return 0;
       }
-      if (bp > np) return 1;
+      if (man > n.man) return 1;
       return -1;
+    }
+
+    /**
+     * @TODO Include a bold (or Javadoc) comment describing every method.
+     * @return
+     */
+    private int ham() {
+      if (ham == -1) ham = b.hamming() + moves;
+      return ham;
     }
 
   }

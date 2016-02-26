@@ -55,7 +55,9 @@ public class Board {
       ham = 0;
       for (int m = 0; m < N; m++) {
         for (int n = 0; n < N; n++) {
-          if (tiles[m][n] != 0 && tiles[m][n] != n + 1 + (m * (N))) ham++;
+          if (tiles[m][n] != 0 && tiles[m][n] != n + 1 + (m * (N)))
+
+            ham++;
         }
       }
     }
@@ -97,14 +99,13 @@ public class Board {
   public boolean isGoal() {
     for (int m = 0; m < N; m++) {
       for (int n = 0; n < N; n++) {
-        if (m == N - 1 && n == N - 1) {
-          if (tiles[m][n] == 0) return true;
-          return false;
+        if (m != N - 1 || n != N - 1) {
+
+          if (tiles[m][n] != n + 1 + (m * (N))) return false;
         }
-        if (tiles[m][n] != n + 1 + (m * (N))) return false;
       }
     }
-    return false;
+    return true;
   }
 
   /**
