@@ -15,6 +15,8 @@ import edu.princeton.cs.algs4.Stack;
  *
  */
 public class Board {
+  // TODO To save memory, consider using an N-by-N char[][] array or a length
+  // N^2 char[] array.
   private int[][] tiles;
   private int N;
   // Cache

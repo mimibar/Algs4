@@ -6,7 +6,7 @@
  */
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 /**
@@ -169,15 +169,15 @@ public class Solver {
     if (!solvable) return null;
 
     // Add the items you want to a Stack<Board> or Queue<Board> and return that.
-    Queue<Board> solution = new Queue<>();
+    Stack<Board> solution = new Stack<>(); // FIX: wrong initial board
     SearchNode n = sol;
-    solution.enqueue(n.b);
+    solution.push(n.b);
 
     while (n.prev != null) {
       n = n.prev;
-      solution.enqueue(n.b);
+      solution.push(n.b);
     }
-
+    // consider them in reverse order
     return solution;
 
   }
