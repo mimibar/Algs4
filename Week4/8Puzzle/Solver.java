@@ -98,21 +98,19 @@ public class Solver {
     MinPQ<SearchNode> pq = new MinPQ<SearchNode>();
     // The current API requires you to detect infeasiblity in Solver by using
     // two synchronized A* searches (e.g., using two priority queues)
-    // TODO Use only one PQ to run the A* algorithm on the initial board and its
+    // Use only one PQ to run the A* algorithm on the initial board and its
     // twin.
-    MinPQ<SearchNode> pqt = new MinPQ<SearchNode>();
 
     // First, insert the initial search node into a priority queue.
     pq.insert(new SearchNode(initial));
-    pqt.insert(new SearchNode(initial.twin()));
+    pq.insert(new SearchNode(initial.twin()));
 
     SearchNode node = pq.delMin();
-    SearchNode twin = pqt.delMin();
 
     // Repeat this procedure until the search node dequeued corresponds to a
     // goal board. The success of this approach hinges on the choice of priority
     // function for a search node.
-    while (!node.b.isGoal() && !twin.b.isGoal()) {
+    while (!node.b.isGoal()) {
       // insert onto the priority queue all neighboring search nodes (those that
       // can be reached in one move from the dequeued search node).
       for (Board x : node.b.neighbors()) {
@@ -122,23 +120,23 @@ public class Solver {
 
           pq.insert(new SearchNode(x, node));
       }
-      for (Board x : twin.b.neighbors()) {
-        if (twin.prev == null || !x.equals(twin.prev.b))
-          pqt.insert(new SearchNode(x, twin));
-      }
-
       // Then, delete from the priority queue the search node with the minimum
       // priority
+
       node = pq.delMin();
-      twin = pqt.delMin();
     }
 
-    if (node.b.isGoal()) {
-      sol = node;
-      solvable = true;
+    // I think more about traceability. Now we trace back the result to original
+    // board from where it all started. If it ends up with original board then
+    // its solvable, otherwise means it came from twin which means its not
+    // solvable.
+    SearchNode root = node;
+    while (root.prev != null) {
+      root = root.prev;
     }
-    else if (twin.b.isGoal()) {
-      solvable = false;
+    if (root.b.equals(initial)) {
+      solvable = true;
+      sol = node;
     }
   }
 
