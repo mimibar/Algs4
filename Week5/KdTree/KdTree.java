@@ -78,8 +78,9 @@ public class KdTree {
   }
 
   private int size(Node p) {
-    if (p == null) return 0;
-
+    // Test 1a: Insert N distinct points and check size() after each insertion
+    // Test 1b: Insert N points and check size() after each insertion
+    if (p.p == null) return 0;
     return size(p.lb) + size(p.rt) + 1;
   }
 
@@ -194,7 +195,10 @@ public class KdTree {
    * @return
    */
   private boolean contains(Node r, Point2D p, boolean hor) {
-    if (p == null) return false;
+    // Test 3a: Insert N distinct points and call contains() with random query
+    // points
+    // Test 3b: Insert N points and call contains() with random query points
+    if (p == null || r.p == null) return false;
 
     // int cmp = p.compareTo(r.p);
     int cmp = xycompare(hor, p, r.p); // TODO x-axis compare
@@ -266,6 +270,10 @@ public class KdTree {
    */
   private void addInRange(RectHV rect, Node n, LinkedList<Point2D> q) {
     if (n.p == null) return;
+    // TODO Test 5b: Insert N points and call range() for random query
+    // rectangles
+    // TODO Test 5c: Insert N points and call range() for tiny rectangles
+    // enclosing each point.
 
     if (rect.contains(n.p)) q.add(n.p);
 
@@ -304,6 +312,9 @@ public class KdTree {
    * @return
    */
   private Point2D nearest(Node r, Point2D p, Point2D nearest) {
+    // TODO Test 6a: Insert N distinct points and call nearest() with random
+    // query points
+
     // pruning rule: if the closest point discovered so far is closer than the
     // distance between the query point and the rectangle corresponding to a
     // node, there is no need to explore that node (or its subtrees). That is, a
