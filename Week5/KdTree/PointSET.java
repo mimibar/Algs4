@@ -4,10 +4,12 @@
  * @purpose
  * @howto
  */
+import java.util.LinkedList;
 import java.util.TreeSet;
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdDraw;
 
 /**
  * Brute-force implementation. Mutable data type that represents a set of points
@@ -18,10 +20,13 @@ import edu.princeton.cs.algs4.RectHV;
  *
  */
 public class PointSET {
+  private TreeSet<Point2D> tree;
+
   /**
    * construct an empty set of points
    */
   public PointSET() {
+    tree = new TreeSet<Point2D>();
   }
 
   /**
@@ -30,6 +35,7 @@ public class PointSET {
    * @return
    */
   public boolean isEmpty() {
+    return tree.isEmpty();
   }
 
   /**
@@ -38,6 +44,7 @@ public class PointSET {
    * @return
    */
   public int size() {
+    return tree.size();
   }
 
   /**
@@ -48,6 +55,9 @@ public class PointSET {
    *           if any argument is null
    */
   public void insert(Point2D p) {
+    if (p == null) throw new NullPointerException();
+
+    tree.add(p);
   }
 
   /**
@@ -59,12 +69,20 @@ public class PointSET {
    *           if any argument is null
    */
   public boolean contains(Point2D p) {
+    if (p == null) throw new NullPointerException();
+
+    return tree.contains(p);
   }
 
   /**
    * draw all points to standard draw
    */
   public void draw() {
+    StdDraw.setPenColor(StdDraw.BLACK);
+    StdDraw.setPenRadius(.01);
+    for (Point2D p : tree) {
+      StdDraw.point(p.x(), p.y());
+    }
   }
 
   /**
@@ -76,6 +94,14 @@ public class PointSET {
    *           if any argument is null
    */
   public Iterable<Point2D> range(RectHV rect) {
+    if (rect == null) throw new NullPointerException();
+
+    LinkedList<Point2D> r = new LinkedList<Point2D>();
+
+    for (Point2D p : tree) {
+      if (rect.contains(p)) r.add(p);
+    }
+    return r;
   }
 
   /**
@@ -87,6 +113,17 @@ public class PointSET {
    *           if any argument is null
    */
   public Point2D nearest(Point2D p) {
+    if (p == null) throw new NullPointerException();
+
+    Point2D nearest = null;
+
+    for (Point2D q : tree) {
+      if (nearest == null
+          || p.distanceSquaredTo(q) < p.distanceSquaredTo(nearest)) {
+        nearest = q;
+      }
+    }
+    return nearest;
   }
 
   /**
