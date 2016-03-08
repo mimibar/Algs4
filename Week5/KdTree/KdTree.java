@@ -23,7 +23,7 @@ import edu.princeton.cs.algs4.StdDraw;
  *
  */
 public class KdTree {
-  private Node root = null;
+  private Node root;
 
   private static class Node {
     /**
@@ -54,6 +54,15 @@ public class KdTree {
    * construct an empty set of points
    */
   public KdTree() {
+    root = new Node();
+
+    root.rect = new RectHV(0, 0, 1, 1);
+
+    root.lb = new Node();
+    root.lb.rect = getRect(root, false, true);
+
+    root.rt = new Node();
+    root.rt.rect = getRect(root, false, false);
 
   }
 
@@ -72,20 +81,20 @@ public class KdTree {
    * @return
    */
   public int size() {
-    if (root == null) return 0;
+    if (root.p == null) return 0;
 
     return size(root);
   }
 
-  private int size(Node p) {
+  private int size(Node pt) {
     // Test 1a: Insert N distinct points and check size() after each insertion
     // Test 1b: Insert N points and check size() after each insertion
-    if (p.p == null) return 0;
-    return size(p.lb) + size(p.rt) + 1;
+    if (pt == null || pt.p == null) return 0;
+    return size(pt.lb) + size(pt.rt) + 1;
   }
 
   /**
-   * add the point to the set (if it is not already in the set)
+   * add the point to the tree (if it is not already in the set)
    *
    * @param p
    * @throws NullPointerException
@@ -96,15 +105,7 @@ public class KdTree {
     if (p == null) throw new NullPointerException();
 
     root = insert(root, p, false);
-    if (root.rect == null) {
-      root.rect = new RectHV(0, 0, 1, 1);
 
-      root.lb = new Node();
-      root.lb.rect = getRect(root, false, true);
-
-      root.rt = new Node();
-      root.rt.rect = getRect(root, false, false);
-    }
   }
 
   private RectHV getRect(Node n, boolean hor, boolean left) {
@@ -201,7 +202,7 @@ public class KdTree {
     if (p == null || r.p == null) return false;
 
     // int cmp = p.compareTo(r.p);
-    int cmp = xycompare(hor, p, r.p); // TODO x-axis compare
+    int cmp = xycompare(hor, p, r.p);
     if (cmp < 0)
       return contains(r.lb, p, !hor);
     else if (cmp > 0)
@@ -301,7 +302,7 @@ public class KdTree {
    *           if any argument is null
    */
   public Point2D nearest(Point2D p) {
-    return nearest(root, p, null);
+    return nearest(root, p, root.p);
   }
 
   /**
@@ -314,6 +315,9 @@ public class KdTree {
   private Point2D nearest(Node r, Point2D p, Point2D nearest) {
     // TODO Test 6a: Insert N distinct points and call nearest() with random
     // query points
+    // TODO Performing nearest() queries after inserting N points into a 2d
+    // tree. The average number of calls to methods in RectHV and Point per call
+    // to nearest().
 
     // pruning rule: if the closest point discovered so far is closer than the
     // distance between the query point and the rectangle corresponding to a
@@ -323,12 +327,9 @@ public class KdTree {
     // quickly finding a nearby point.
     if (r.p == null) return nearest;
 
-    if (nearest == null
-        || r.p.distanceSquaredTo(p) < nearest.distanceSquaredTo(p)) {
-      nearest = r.p;
-    }
-
     double min = nearest.distanceSquaredTo(p);
+    if (r.p.distanceSquaredTo(p) < min) nearest = r.p;
+
     // TODO To do this, organize your recursive method so that when there are
     // two possible subtrees to go down, you always choose the subtree that is
     // on the same side of the splitting line as the query point as the first
