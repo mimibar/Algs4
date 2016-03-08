@@ -54,16 +54,6 @@ public class KdTree {
    * construct an empty set of points
    */
   public KdTree() {
-    root = new Node();
-
-    root.rect = new RectHV(0, 0, 1, 1);
-
-    root.lb = new Node();
-    root.lb.rect = getRect(root, false, true);
-
-    root.rt = new Node();
-    root.rt.rect = getRect(root, false, false);
-
   }
 
   /**
@@ -81,7 +71,7 @@ public class KdTree {
    * @return
    */
   public int size() {
-    if (root.p == null) return 0;
+    if (root == null) return 0;
 
     return size(root);
   }
@@ -105,6 +95,15 @@ public class KdTree {
     if (p == null) throw new NullPointerException();
 
     root = insert(root, p, false);
+    if (root.rect == null) {
+      root.rect = new RectHV(0, 0, 1, 1);
+
+      root.lb = new Node();
+      root.lb.rect = getRect(root, false, true);
+
+      root.rt = new Node();
+      root.rt.rect = getRect(root, false, false);
+    }
 
   }
 
