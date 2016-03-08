@@ -140,30 +140,38 @@ public class KdTree {
       int cmp = xycompare(hor, pt, r.p);
 
       if (cmp < 0) {
-        r.lb = insert(r.lb, pt, !hor);
-        if (r.lb.lb == null) { // point was inserted..
-
-          r.lb.lb = new Node();
-          r.lb.lb.rect = getRect(r.lb, !hor, true);
-
-          r.lb.rt = new Node();
-          r.lb.rt.rect = getRect(r.lb, !hor, false);
-        }
+        r.lb = insert(r.lb, pt, !hor, true);
       }
       else // What should I do if a point has the same x-coordinate as the point
            // in a node when inserting/searching in a 2d-tree? Go the right
            // subtree as specified.
-      if (cmp >= 0) {
-        r.rt = insert(r.rt, pt, !hor);
-        if (r.rt.lb == null) {
-          r.rt.lb = new Node();
-          r.rt.lb.rect = getRect(r.rt, !hor, true);
-
-          r.rt.rt = new Node();
-          r.rt.rt.rect = getRect(r.rt, !hor, false);
-        }
+      // Test 1b: Insert N points and check size() after each insertion
+      if (cmp > 0 || r.p.compareTo(pt) != 0) { // distinct
+        r.rt = insert(r.rt, pt, !hor, false);
       }
 
+    }
+    return r;
+
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param rt
+   * @param pt
+   * @param hor
+   * @param left
+   * @return
+   */
+  private Node insert(Node r, Point2D pt, boolean hor, boolean left) {
+    r = insert(r, pt, hor);
+
+    if (r.lb == null) {// point was inserted, create empty subtrees
+      r.lb = new Node();
+      r.lb.rect = getRect(r, hor, true);
+
+      r.rt = new Node();
+      r.rt.rect = getRect(r, hor, false);
     }
     return r;
 
@@ -193,17 +201,22 @@ public class KdTree {
     // Test 3a: Insert N distinct points and call contains() with random query
     // points
     // Test 3b: Insert N points and call contains() with random query points
-    if (p == null || r.p == null) return false;
+    // Test 8: test intermixed sequence of calls to isEmpty(), size(), insert(),
+    // contains(), range(), and nearest() with probabilities
+    // p1, p2, p3 = 0, p4, p5, and p6, respectively
+    // (a data structure with 0 points)
+    if (r == null || r.p == null) return false;
 
     // int cmp = p.compareTo(r.p);
     int cmp = xycompare(hor, p, r.p);
-    if (cmp < 0)
-      return contains(r.lb, p, !hor);
-    else if (cmp > 0)
-      return contains(r.rt, p, !hor);
 
-    else
-      return true;
+    if (cmp < 0) return contains(r.lb, p, !hor);
+    if (cmp > 0) return contains(r.rt, p, !hor);
+    // Test 3a: Insert N distinct points and call contains() with random query
+    // points
+    // Test 3b: Insert N points and call contains() with random query points
+
+    return p.compareTo(r.p) == 0;
   }
 
   /**
@@ -378,7 +391,7 @@ public class KdTree {
         double y = in.readDouble();
         p = new Point2D(x, y);
         kdtree.insert(p);
-
+        System.out.println(kdtree.size);
       }
       kdtree.draw();
       StdDraw.show();
