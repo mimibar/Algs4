@@ -295,51 +295,68 @@ public class KdTree {
   /**
    * a nearest neighbor in the set to point p; null if the set is empty
    *
-   * @param p
+   * @param pt
    * @return
    * @throws NullPointerException
    *           if any argument is null
    */
-  public Point2D nearest(Point2D p) {
-    return nearest(root, p, root.p);
+  public Point2D nearest(Point2D pt) {
+    return nearest(root, pt, root.p, root.p.distanceSquaredTo(pt), false);
   }
 
   /**
    * @TODO Include a bold (or Javadoc) comment describing every method.
    * @param root2
-   * @param p
+   * @param pt
+   * @param min
+   * @param hor
    * @param dist
    * @return
    */
-  private Point2D nearest(Node r, Point2D p, Point2D nearest) {
+  private Point2D nearest(Node r, Point2D pt, Point2D nearest, double min,
+      boolean hor) {
     // TODO Test 6a: Insert N distinct points and call nearest() with random
     // query points
     // TODO Performing nearest() queries after inserting N points into a 2d
     // tree. The average number of calls to methods in RectHV and Point per call
     // to nearest().
 
+    if (r.p == null) return nearest;
     // pruning rule: if the closest point discovered so far is closer than the
     // distance between the query point and the rectangle corresponding to a
     // node, there is no need to explore that node (or its subtrees). That is, a
     // node is searched only if it might contain a point that is closer than the
     // best one found so far. The effectiveness of the pruning rule depends on
     // quickly finding a nearby point.
-    if (r.p == null) return nearest;
-
-    double min = nearest.distanceSquaredTo(p);
-    if (r.p.distanceSquaredTo(p) < min) nearest = r.p;
+    // if (r.rect.distanceSquaredTo(pt) > min) return nearest;
+    double dist = r.p.distanceSquaredTo(pt);
+    if (dist < min) {
+      nearest = r.p;
+      min = dist;
+    }
 
     // TODO To do this, organize your recursive method so that when there are
     // two possible subtrees to go down, you always choose the subtree that is
     // on the same side of the splitting line as the query point as the first
     // subtree to explore—the closest point found while exploring the first
     // subtree may enable pruning of the second subtree.
-    if (r.lb.rect.distanceSquaredTo(p) < min) {
-      nearest = nearest(r.lb, p, nearest);
-      min = nearest.distanceSquaredTo(p);
+    Node first, sec;
+    if (xycompare(hor, pt, r.p) > 0) {
+      first = r.rt;
+      sec = r.lb;
     }
-    if (r.rt.rect.distanceSquaredTo(p) < min)
-      nearest = nearest(r.rt, p, nearest);
+    else {
+      first = r.lb;
+      sec = r.rt;
+    }
+
+    if (first.rect.distanceSquaredTo(pt) < min) {
+      Point2D old = nearest;
+      nearest = nearest(first, pt, nearest, min, !hor);
+      if (old != nearest) min = nearest.distanceSquaredTo(pt);
+    }
+    if (sec.rect.distanceSquaredTo(pt) < min)
+      nearest = nearest(sec, pt, nearest, min, !hor);
 
     return nearest;
 
