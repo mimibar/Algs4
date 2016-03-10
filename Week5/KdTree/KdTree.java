@@ -166,7 +166,7 @@ public class KdTree {
   private Node insert(Node r, Point2D pt, boolean hor, boolean left) {
     r = insert(r, pt, hor);
 
-    if (r.lb == null) {// point was inserted, create empty subtrees
+    if (r.lb == null) { // point was inserted, create empty subtrees
       r.lb = new Node();
       r.lb.rect = getRect(r, hor, true);
 
@@ -312,6 +312,10 @@ public class KdTree {
    *           if any argument is null
    */
   public Point2D nearest(Point2D pt) {
+    // Test 8: test intermixed sequence of calls to isEmpty(), size(), insert(),
+    // contains(), range(), and nearest() with probabilities p1, p2, p3 = 0, p4,
+    // p5, and p6, respectively (a data structure with 0 points)
+    if (root == null || root.p == null) return null;
     return nearest(root, pt, root.p, root.p.distanceSquaredTo(pt), false);
   }
 
