@@ -215,8 +215,11 @@ public class KdTree {
     // Test 3a: Insert N distinct points and call contains() with random query
     // points
     // Test 3b: Insert N points and call contains() with random query points
-
-    return p.compareTo(r.p) == 0;
+    if (p.compareTo(r.p) == 0) return true;
+    // What should I do if a point has the same x-coordinate as the point in a
+    // node when inserting / searching in a 2d-tree? Go the right subtree as
+    // specified.
+    return contains(r.rt, p, !hor);
   }
 
   /**
@@ -277,11 +280,11 @@ public class KdTree {
    * @param q
    */
   private void addInRange(RectHV rect, Node n, LinkedList<Point2D> q) {
-    if (n.p == null) return;
-    // TODO Test 5b: Insert N points and call range() for random query
-    // rectangles
-    // TODO Test 5c: Insert N points and call range() for tiny rectangles
-    // enclosing each point.
+    // Test 8: test intermixed sequence of calls to isEmpty(), size(), insert(),
+    // contains(), range(), and nearest() with probabilities
+    // p1, p2, p3 = 0, p4, p5, and p6, respectively
+    // (a data structure with 0 points)
+    if (n == null || n.p == null) return;
 
     if (rect.contains(n.p)) q.add(n.p);
 
@@ -323,13 +326,14 @@ public class KdTree {
    */
   private Point2D nearest(Node r, Point2D pt, Point2D nearest, double min,
       boolean hor) {
-    // TODO Test 6a: Insert N distinct points and call nearest() with random
-    // query points
     // TODO Performing nearest() queries after inserting N points into a 2d
     // tree. The average number of calls to methods in RectHV and Point per call
     // to nearest().
-
-    if (r.p == null) return nearest;
+    // Test 8: test intermixed sequence of calls to isEmpty(), size(), insert(),
+    // contains(), range(), and nearest() with probabilities
+    // p1, p2, p3 = 0, p4, p5, and p6, respectively
+    // (a data structure with 0 points)
+    if (r == null || r.p == null) return nearest;
     // pruning rule: if the closest point discovered so far is closer than the
     // distance between the query point and the rectangle corresponding to a
     // node, there is no need to explore that node (or its subtrees). That is, a
