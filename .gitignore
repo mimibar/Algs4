@@ -10,3 +10,15 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+Part I/Week2/Queues/.settings/org.eclipse.jdt.core.prefs
+.metadata/
+*.zip
+Part I/Week1/Percolation/src/PercolationVisualizer.java
+Part I/Week1/.settings/org.eclipse.jdt.core.prefs
+Part I/Week1/Percolation/data/
+Part I/Week1/Percolation/output/
+Part I/Week5/KdTree/KdTreeGenerator.java
+Part I/Week5/KdTree/KdTreeVisualizer.java
+Part I/Week5/KdTree/NearestNeighborVisualizer.java
+Part I/Week5/KdTree/RangeSearchVisualizer.java
+**/testing/
