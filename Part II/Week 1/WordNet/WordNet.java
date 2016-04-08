@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -25,15 +24,20 @@ import edu.princeton.cs.algs4.TopologicalX;
 public class WordNet {
 
   /**
+   * &lt;noun, synsets&gt;</br>
    * A synset can consist of exactly one noun. Moreover, there can be several
-   * different synsets that consist of the same noun.
+   * different synsets that consist of the same noun, i.e. a noun can appear in
+   * more than one synset.
    */
-  private HashMap<Integer, LinkedList<String>> synsets;
-  /**
-   * A noun can appear in more than one synset
-   */
-  private HashSet<String> nouns = new HashSet<>();
+  private HashMap<String, LinkedList<Integer>> nounSynsets =
+      new HashMap<String, LinkedList<Integer>>();
+
   private Digraph dg;
+
+  /**
+   * Number of synsets
+   */
+  private int syn = 0;
 
   /**
    * constructor takes the name of the two input files@param synsets
@@ -49,22 +53,33 @@ public class WordNet {
    *           if the input does not correspond to a rooted DAG
    */
   public WordNet(String synsets, String hypernyms) {
-    if (synsets == null || hypernyms == null)
-      throw new NullPointerException("argument is null");
-
-    // Synsets
-    this.synsets = new HashMap<Integer, LinkedList<String>>();
+    isNotNull(synsets);
+    isNotNull(hypernyms);
 
     Scanner in = null;
+
+    ////////////////////////// Synsets
+
     try {
       in = new Scanner(new File(synsets));
       in.useDelimiter(",");
-      LinkedList<String> n;
+
+      LinkedList<String> nouns;
+      LinkedList<Integer> ss;
+
       while (in.hasNextLine()) {
         int key = Integer.parseInt(in.next());
-        n = new LinkedList<>(Arrays.asList(in.next().split("\\s")));
-        this.synsets.put(key, n);
-        nouns.addAll(n);
+        nouns = new LinkedList<>(Arrays.asList(in.next().split("\\s")));
+        for (String n : nouns) {
+          if (nounSynsets.containsKey(n))
+            ss = nounSynsets.get(n);
+          else
+            ss = new LinkedList<>();
+          ss.add(key);
+          nounSynsets.put(n, ss);
+
+        }
+        syn++;
         in.nextLine();
       }
     } catch (FileNotFoundException e) {
@@ -74,18 +89,19 @@ public class WordNet {
         in.close();
     }
 
-    // Hypernyms
+    ////////////////////////// Hypernyms
     try {
       in = new Scanner(new File(hypernyms));
       in.useDelimiter("[,\n]");
 
-      dg = new Digraph(this.synsets.size());
+      dg = new Digraph(syn);
 
+      String s;
       while (in.hasNext()) {
 
         int v = Integer.parseInt(in.next());
 
-        String s = in.nextLine();
+        s = in.nextLine();
 
         for (String w : s.split(",")) {
           if (!w.isEmpty())
@@ -106,8 +122,20 @@ public class WordNet {
   }
 
   /**
+   * @param o
+   * @return true if argument not null
+   * @throws NullPointerException
+   *           if any argument is null.
+   */
+  private boolean isNotNull(Object o) {
+    if (o == null)
+      throw new NullPointerException();
+    return true;
+  }
+
+  /**
    * a rooted DAG: it is acyclic and has one vertex—the root—that is an ancestor
-   * of every other vertex.
+   * of every other vertex.</br>
    *
    * Reachable vertex in a DAG. A linear-time algorithm to determine whether a
    * DAG has a vertex that is reachable from every other vertex. Compute the
@@ -150,7 +178,7 @@ public class WordNet {
    *           if any argument is null.
    */
   public Iterable<String> nouns() {
-    return nouns;
+    return nounSynsets.keySet();
   }
 
   /**
@@ -164,10 +192,9 @@ public class WordNet {
    *           if any argument is null.
    */
   public boolean isNoun(String word) {
-    if (word == null)
-      throw new NullPointerException();
+    isNotNull(word);
 
-    return nouns.contains(word);
+    return nounSynsets.containsKey(word);
   }
 
   /**
@@ -204,7 +231,8 @@ public class WordNet {
    * @param args
    */
   public static void main(String[] args) {
-    WordNet wordnet = new WordNet(args[0], args[1]);
+    WordNet wn = new WordNet(args[0], args[1]);
+    wn.isNoun("this");
   }
 
 }
