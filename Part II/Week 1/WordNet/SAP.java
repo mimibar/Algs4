@@ -5,6 +5,8 @@
  * @howto
  */
 
+import java.util.HashMap;
+
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
@@ -24,9 +26,17 @@ import edu.princeton.cs.algs4.StdOut;
  */
 public class SAP {
 
+  /**
+   * To make the data type SAP immutable, save the associated digraph in an
+   * instance variable. Because our Digraph data type is mutable, you must first
+   * make a defensive copy by calling the copy constructor.
+   */
   private Digraph dg;
-  private Integer[][] len;
-  private Integer[][] anc;
+
+  /**
+   * HashMap&ltv, HashMap&ltw, {len,anc}&gt&gt
+   */
+  private HashMap<Integer, HashMap<Integer, int[]>> cache;
 
   /**
    * constructor takes a digraph (not necessarily a DAG).</br>
@@ -55,11 +65,13 @@ public class SAP {
    *
    * @param G
    *          a digraph (not necessarily a DAG)
+   * @throws NullPointerException
+   *           if any argument is null
    */
   public SAP(Digraph G) {
+    isNotNull(G);
     dg = new Digraph(G);
-    len = new Integer[dg.V()][dg.V()];
-    anc = new Integer[dg.V()][dg.V()];
+    cache = new HashMap<Integer, HashMap<Integer, int[]>>();
   }
 
   /**
@@ -79,8 +91,8 @@ public class SAP {
     isVertexValid(v);
     isVertexValid(w);
 
-    if (len[v][w] != null)// use cached length
-      return len[v][w];
+    if (visited(v, w)) // use cached length
+      return len(v, w);
 
     BreadthFirstDirectedPaths bfDpV = new BreadthFirstDirectedPaths(dg, v);
     BreadthFirstDirectedPaths bfDpW = new BreadthFirstDirectedPaths(dg, w);
@@ -100,9 +112,24 @@ public class SAP {
     if (min == Integer.MAX_VALUE)
       min = -1;
 
-    len[v][w] = min;
-    anc[v][w] = ancestor;
+    int[] vw = null;
+    HashMap<Integer, int[]> vc;
 
+    if (cache.containsKey(v))
+      vc = cache.get(v);
+    else
+      vc = new HashMap<Integer, int[]>();
+
+    if (vc.containsKey(w))
+      vw = vc.get(w); // len && anc
+    else
+      vw = new int[2];
+
+    vw[0] = min;
+    vw[1] = ancestor;
+    vc.put(w, vw);
+
+    cache.put(v, vc);
     return min;
   }
 
@@ -125,17 +152,40 @@ public class SAP {
     isVertexValid(v);
     isVertexValid(w);
 
-    if (len[v][w] == null)
+    if (!visited(v, w))
       length(v, w);
 
-    return anc[v][w];
+    return anc(v, w);
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param v
+   * @param w
+   * @return
+   */
+  private int anc(int v, int w) {
+
+    return cache.get(v).get(w)[1];
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param v
+   * @return
+   */
+  private boolean visited(int v, int w) {
+    return cache.containsKey(v) && cache.get(v).containsKey(w);
   }
 
   /**
    * length of shortest ancestral path between any vertex in v and any vertex in
-   * w; -1 if no such path
+   * w; -1 if no such path</br>
+   * The key is using the constructor in {@link BreadthFirstDirectedPaths} that
+   * takes an iterable of sources instead of using a single source.
    *
-   * @param v
+   * @ @param
+   *     v
    * @param w
    * @return length of shortest ancestral path between any vertex in v and any
    *         vertex in w; -1 if no such path
@@ -148,26 +198,41 @@ public class SAP {
     isNotNull(v);
     isNotNull(w);
 
-    int min = Integer.MAX_VALUE;
-
-    for (int i : v) {
+    for (int i : v)
       isVertexValid(i);
-      for (int j : w) {
-        isVertexValid(j);
+    for (int i : w)
+      isVertexValid(i);
 
-        if (len[i][i] == null) {
-          len[i][i] = length(i, j);
+    // TODO bfs to ancestor from v and w
 
-          if (len[i][i] > -1 && len[i][i] < min)
-            min = len[i][i];
+    BreadthFirstDirectedPaths bfDpV = new BreadthFirstDirectedPaths(dg, v);
+    BreadthFirstDirectedPaths bfDpW = new BreadthFirstDirectedPaths(dg, w);
+
+    int min = Integer.MAX_VALUE, d;
+    for (int i = 0; i < dg.V(); i++) {
+      if (bfDpV.hasPathTo(i) && bfDpW.hasPathTo(i)) {
+        d = bfDpV.distTo(i) + bfDpW.distTo(i);
+        if (d > -1 && d < min) {
+          min = d;
         }
       }
     }
-    if (min < Integer.MAX_VALUE)
-      min -= 0;
-    else
+
+    if (min == Integer.MAX_VALUE)
       min = -1;
     return min;
+
+  }
+
+  /**
+   * @TODO Include a bold (or Javadoc) comment describing every method.
+   * @param i
+   * @param j
+   * @return
+   */
+  private int len(int i, int j) {
+
+    return cache.get(i).get(j)[0];
   }
 
   /**
@@ -176,7 +241,7 @@ public class SAP {
    * @throws NullPointerException
    *           if any argument is null.
    */
-  private boolean isNotNull(Object o) {
+  private static boolean isNotNull(Object o) {
     if (o == null)
       throw new NullPointerException();
     return true;
@@ -188,10 +253,9 @@ public class SAP {
    * @throws IndexOutOfBoundsException
    *           if any argument vertex is invalid—not between 0 and G.V() - 1.
    */
-  private boolean isVertexValid(int v) {
+  private void isVertexValid(int v) {
     if (v < 0 || v > dg.V() - 1)
       throw new IndexOutOfBoundsException();
-    return true;
   }
 
   /**
@@ -211,18 +275,18 @@ public class SAP {
     isNotNull(v);
     isNotNull(w);
     int min = Integer.MAX_VALUE, ancestor = -1;
-
+    // TODO
     for (int i : v) {
       isVertexValid(i);
       for (int j : w) {
         isVertexValid(j);
 
-        if (len[i][j] == null)
+        if (!visited(i, j))
           length(i, j);
-
-        if (len[i][j] > -1 && len[i][j] < min) {
-          min = len[i][j];
-          ancestor = anc[i][j];
+        int l = len(i, j);
+        if (l > -1 && l < min) {
+          min = l;
+          ancestor = anc(i, j);
         }
       }
     }

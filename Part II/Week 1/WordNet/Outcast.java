@@ -9,21 +9,28 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 /**
- * immutable data type Outcast
+ * immutable data type Outcast</br>
+ *
+ * Given a list of wordnet nouns, which noun is the least related to the others?
+ * To identify an outcast, compute the sum of the distances between each noun
+ * and every other one and return a noun At for which dt is maximum.
  *
  * @author mimi
  *
  */
 public class Outcast {
 
+  private WordNet wordnet;
+
   /**
-   * constructor takes a WordNet object@param wordnet
+   * constructor takes a WordNet object
    *
    * @param wordnet
    *          Assume contains only valid wordnet nouns (and that it contains at
    *          least two such nouns).
    */
   public Outcast(WordNet wordnet) {
+    this.wordnet = wordnet;
   } //
 
   /**
@@ -33,7 +40,24 @@ public class Outcast {
    * @return
    */
   public String outcast(String[] nouns) {
-  } //
+    String outString = null;
+    int max = Integer.MIN_VALUE;
+
+    for (String a : nouns) {
+      int dt = 0;
+      for (String b : nouns) {
+        if (a.equals(b))
+          continue;
+        dt += wordnet.distance(a, b);
+
+      }
+      if (dt > max) {
+        max = dt;
+        outString = a;
+      }
+    }
+    return outString;
+  }
 
   /**
    * test client

@@ -6,14 +6,14 @@
  */
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.Topological;
-import edu.princeton.cs.algs4.TopologicalX;
 
 /**
  * immutable data type WordNet
@@ -29,15 +29,15 @@ public class WordNet {
    * different synsets that consist of the same noun, i.e. a noun can appear in
    * more than one synset.
    */
-  private HashMap<String, LinkedList<Integer>> nounSynsets =
-      new HashMap<String, LinkedList<Integer>>();
-
-  private Digraph dg;
+  private HashMap<String, List<Integer>> nounSynsets =
+      new HashMap<String, List<Integer>>();
 
   /**
    * Number of synsets
    */
   private int syn = 0;
+
+  private SAP sap;
 
   /**
    * constructor takes the name of the two input files@param synsets
@@ -64,12 +64,13 @@ public class WordNet {
       in = new Scanner(new File(synsets));
       in.useDelimiter(",");
 
-      LinkedList<String> nouns;
-      LinkedList<Integer> ss;
+      String[] nouns;
+      List<Integer> ss;
 
       while (in.hasNextLine()) {
         int key = Integer.parseInt(in.next());
-        nouns = new LinkedList<>(Arrays.asList(in.next().split("\\s")));
+
+        nouns = in.next().split("\\s");
         for (String n : nouns) {
           if (nounSynsets.containsKey(n))
             ss = nounSynsets.get(n);
@@ -94,7 +95,7 @@ public class WordNet {
       in = new Scanner(new File(hypernyms));
       in.useDelimiter("[,\n]");
 
-      dg = new Digraph(syn);
+      Digraph dg = new Digraph(syn);
 
       String s;
       while (in.hasNext()) {
@@ -109,16 +110,17 @@ public class WordNet {
         }
 
       }
+      if (!isRooted(dg) || !(new Topological(dg).hasOrder()))
+        throw new IllegalArgumentException(
+            "the input does not correspond to a rooted DAG");
+
+      sap = new SAP(dg);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     } finally {
       if (in != null)
         in.close();
     }
-
-    if (!isRooted(dg) || !(new Topological(dg).hasOrder()))
-      throw new IllegalArgumentException(
-          "the input does not correspond to a rooted DAG");
   }
 
   /**
@@ -127,7 +129,7 @@ public class WordNet {
    * @throws NullPointerException
    *           if any argument is null.
    */
-  private boolean isNotNull(Object o) {
+  private static boolean isNotNull(Object o) {
     if (o == null)
       throw new NullPointerException();
     return true;
@@ -157,10 +159,10 @@ public class WordNet {
    * @param dg2
    * @return
    */
-  private boolean isRooted(Digraph dg2) {
+  private static boolean isRooted(Digraph g) {
     boolean rootFound = false;
-    for (int i = 0; i < dg.V(); i++) {
-      if (dg2.outdegree(i) == 0)
+    for (int i = 0; i < g.V(); i++) {
+      if (g.outdegree(i) == 0)
         if (rootFound)
         return false;
         else
@@ -208,6 +210,11 @@ public class WordNet {
    *           unless both of the noun arguments are WordNet nouns.
    */
   public int distance(String nounA, String nounB) {
+    isNotNull(nounA);
+    isNotNull(nounB);
+    if (!isNoun(nounA) || !isNoun(nounB))
+      throw new IllegalArgumentException();
+    return sap.length(nounSynsets.get(nounA), nounSynsets.get(nounB));
   }
 
   /**
@@ -216,13 +223,31 @@ public class WordNet {
    *
    * @param nounA
    * @param nounB
-   * @return
+   * @return The individual nouns that comprise a synset are separated by spaces
+   *         (and a synset element is not permitted to contain a space).
    * @throws NullPointerException
    *           if any argument is null.
    * @throws IllegalArgumentException
    *           unless both of the noun arguments are WordNet nouns.
    */
   public String sap(String nounA, String nounB) {
+    isNotNull(nounA);
+    isNotNull(nounB);
+
+    if (!isNoun(nounA) || !isNoun(nounB))
+      throw new IllegalArgumentException();
+
+    StringBuilder sb = new StringBuilder();
+
+    int anc = sap.ancestor(nounSynsets.get(nounA), nounSynsets.get(nounB));
+
+    for (Entry<String, List<Integer>> n : nounSynsets.entrySet()) {
+      if (n.getValue().contains(anc))
+        sb.append(n.getKey()).append(" ");
+    }
+
+    return sb.toString();
+
   }
 
   /**
@@ -232,7 +257,11 @@ public class WordNet {
    */
   public static void main(String[] args) {
     WordNet wn = new WordNet(args[0], args[1]);
-    wn.isNoun("this");
+    wn.nouns();
+    System.out.println(wn.isNoun("Abruzzi"));
+    System.out.println(wn.sap("Abruzzi", "Abutilon"));
+    System.out.println(wn.distance("Abruzzi", "Abutilon"));
+
   }
 
 }
