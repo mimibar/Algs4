@@ -99,8 +99,19 @@ public class SAP {
 
     int min = Integer.MAX_VALUE, ancestor = -1;
     for (int i = 0; i < dg.V(); i++) {
-      if (i == v)
-        continue;
+      // Test 1: test length() and ancestor() on fixed digraphs
+      // Test 3: check length() and ancestor() on directed paths
+      // Test 4: check length() and ancestor() on directed cycles
+      // Test 5: check length() and ancestor() on complete graphs
+      // Test 6: check length() and ancestor() on tournament digraphs
+      // Test 7: check length() and ancestor() on complete binary trees
+      // Test 8: check length() and ancestor() on random DAGs
+      // Test 9: check length() and ancestor() on random rooted-in DAGs
+      // Test 10: check length() and ancestor() on random rooted-out DAGs
+      // Test 11: check length() and ancestor() on random rooted-in trees
+      // Test 12: check length() and ancestor() on random rooted-out trees
+      // Test 13: check length() and ancestor() on random simple digraphs
+      // Test 14: check whether two SAP objects can be created at the same time
 
       if (bfDpV.hasPathTo(i) && bfDpW.hasPathTo(i)
           && bfDpV.distTo(i) + bfDpW.distTo(i) < min) {

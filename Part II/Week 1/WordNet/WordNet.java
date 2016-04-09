@@ -257,11 +257,11 @@ public class WordNet {
    */
   public static void main(String[] args) {
     WordNet wn = new WordNet(args[0], args[1]);
-    wn.nouns();
-    System.out.println(wn.isNoun("Abruzzi"));
-    System.out.println(wn.sap("Abruzzi", "Abutilon"));
-    System.out.println(wn.distance("Abruzzi", "Abutilon"));
-
+    if (wn.nouns() != null) {
+      System.out.println(wn.isNoun("Abruzzi"));
+      System.out.println(wn.sap("Abruzzi", "Abutilon"));
+      System.out.println(wn.distance("Abruzzi", "Abutilon"));
+    }
   }
 
 }
