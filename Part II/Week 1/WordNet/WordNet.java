@@ -98,7 +98,8 @@ public class WordNet {
 
     ////////////////////////// Hypernyms
     try {
-      in = new Scanner(new java.io.File(hypernyms));
+      // H I DM_DEFAULT_ENCODING Dm: Found reliance on default encoding
+      in = new Scanner(new java.io.File(hypernyms), "UTF-8");
       in.useDelimiter("[,\n]");
 
       Digraph dg = new Digraph(syn);

@@ -6,10 +6,12 @@
  */
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 
@@ -86,6 +88,7 @@ public class SAP {
    *           if any argument vertex is invalid—not between 0 and G.V() - 1.
    */
   public int length(int v, int w) {
+
     isNotNull(v);
     isNotNull(w);
     isVertexValid(v);
@@ -123,7 +126,13 @@ public class SAP {
     if (min == Integer.MAX_VALUE)
       min = -1;
 
-    int[] vw = null;
+    addCache(v, w, min, ancestor);
+
+    return min;
+  }
+
+  private void addCache(int v, int w, int len, int ancestor) {
+    int[] vTow = null;
     HashMap<Integer, int[]> vc;
 
     if (cache.containsKey(v))
@@ -132,16 +141,15 @@ public class SAP {
       vc = new HashMap<Integer, int[]>();
 
     if (vc.containsKey(w))
-      vw = vc.get(w); // len && anc
+      vTow = vc.get(w); // len && anc
     else
-      vw = new int[2];
+      vTow = new int[2];
 
-    vw[0] = min;
-    vw[1] = ancestor;
-    vc.put(w, vw);
+    vTow[0] = len;
+    vTow[1] = ancestor;
+    vc.put(w, vTow);
 
     cache.put(v, vc);
-    return min;
   }
 
   /**
@@ -206,6 +214,15 @@ public class SAP {
    *           if any argument vertex is invalid—not between 0 and G.V() - 1.
    */
   public int length(Iterable<Integer> v, Iterable<Integer> w) {
+    // Test 3a-c: time length() and ancestor() with random sets of 5
+    // vertices
+    // Test 17: test length() and ancestor() with Iterable arguments
+    // * 100 random subsets of 3 and 11 vertices in digraph-wordnet.txt
+    //
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // OperationCountLimitExceededException
+    // Number of primitive operations in Digraph exceeds limit: 1000000000
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     isNotNull(v);
     isNotNull(w);
 
@@ -214,23 +231,30 @@ public class SAP {
     for (int i : w)
       isVertexValid(i);
 
-    // TODO bfs to ancestor from v and w
+    // BFS to ancestor from v and w
 
     BreadthFirstDirectedPaths bfDpV = new BreadthFirstDirectedPaths(dg, v);
     BreadthFirstDirectedPaths bfDpW = new BreadthFirstDirectedPaths(dg, w);
+
+    int ancestor = -1;
 
     int min = Integer.MAX_VALUE, d;
     for (int i = 0; i < dg.V(); i++) {
       if (bfDpV.hasPathTo(i) && bfDpW.hasPathTo(i)) {
         d = bfDpV.distTo(i) + bfDpW.distTo(i);
-        if (d > -1 && d < min) {
+        if (d < min) {
           min = d;
+          ancestor = i;
         }
       }
     }
 
     if (min == Integer.MAX_VALUE)
       min = -1;
+    else {
+      addCache((int) ((Stack<Integer>) bfDpV.pathTo(ancestor)).peek(),
+          (int) ((Stack<Integer>) bfDpW.pathTo(ancestor)).peek(), min, ancestor);
+    }
     return min;
 
   }
@@ -282,23 +306,26 @@ public class SAP {
    *           if any argument vertex is invalid—not between 0 and G.V() - 1.
    */
   public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+    // Test 3a-c: time length() and ancestor() with random sets of 5
+    // vertices
+    // Test 17: test length() and ancestor() with Iterable arguments
 
     isNotNull(v);
     isNotNull(w);
-    int min = Integer.MAX_VALUE, ancestor = -1;
-    // TODO
-    for (int i : v) {
+    for (int i : v)
       isVertexValid(i);
-      for (int j : w) {
-        isVertexValid(j);
+    for (int i : w)
+      isVertexValid(i);
+    int ancestor = -1;
 
-        if (!visited(i, j))
-          length(i, j);
-        int l = len(i, j);
-        if (l > -1 && l < min) {
-          min = l;
+    int min = length(v, w);
+    for (int i : v) {
+      for (int j : w) {
+        if (visited(i, j) && len(i, j) == min) {
           ancestor = anc(i, j);
+          break;
         }
+
       }
     }
 
@@ -321,6 +348,24 @@ public class SAP {
       int length = sap.length(v, w);
       int ancestor = sap.ancestor(v, w);
       StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
+    }
+    // TODO Test 17: test length() and ancestor() with Iterable arguments
+    // * 100 random subsets of 3 and 11 vertices in digraph-wordnet.txt
+    //
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    // OperationCountLimitExceededException
+    // Number of primitive operations in Digraph exceeds limit: 1000000000
+    // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    for (int i = 0; i <= 100; i++) {
+      LinkedList<Integer> w = new LinkedList<Integer>();
+      LinkedList<Integer> v = new LinkedList<Integer>();
+      for (int j = 0; j < 3; j++)
+        v.add((int) (Math.random() * G.V()));
+      for (int j = 0; j < 11; j++)
+        w.add((int) (Math.random() * G.V()));
+
+      System.out.println(sap.ancestor(v, w));
+      System.out.println(sap.length(v, w));
     }
   }
 }
