@@ -6,6 +6,7 @@
  * @howto
  */
 import java.awt.Color;
+import java.util.Arrays;
 
 import edu.princeton.cs.algs4.Picture;
 
@@ -41,10 +42,10 @@ public class SeamCarver {
     H = pic.height();
     W = pic.width();
     // We already use an array to store the colors
-    color = new Color[W][H];
+    color = new Color[H][W];
     for (int x = 0; x < W; x++) {
       for (int y = 0; y < H; y++) {
-        color[x][y] = pic.get(x, y);
+        color[y][x] = pic.get(x, y);
       }
     }
 
@@ -59,10 +60,10 @@ public class SeamCarver {
    */
   private void setEnergies() {
 
-    energy = new double[W][H];
+    energy = new double[H][W];
     for (int x = 0; x < W; x++) {
       for (int y = 0; y < H; y++) {
-        energy[x][y] = energyt(x, y);
+        energy[y][x] = energyt(x, y);
       }
     }
   }
@@ -97,7 +98,7 @@ public class SeamCarver {
     Picture p = new Picture(W, H);
     for (int x = 0; x < W; x++)
       for (int y = 0; y < H; y++)
-        p.set(x, y, color[x][y]);
+        p.set(x, y, color[y][x]);
     pic = p;
     return pic;
   }
@@ -151,16 +152,16 @@ public class SeamCarver {
       int r, g, b;
       double e = 0.0;
       // x-gradient
-      n = color[x - 1][y]; // left
-      p = color[x + 1][y]; // right
+      n = color[y][x - 1]; // left
+      p = color[y][x + 1]; // right
       r = n.getRed() - p.getRed();
       g = n.getGreen() - p.getGreen();
       b = n.getBlue() - p.getBlue();
       e = (double) (r * r + g * g + b * b);
 
       // y-gradient
-      n = color[x][y - 1]; // up
-      p = color[x][y + 1]; // down
+      n = color[y - 1][x]; // up
+      p = color[y + 1][x]; // down
       r = n.getRed() - p.getRed();
       g = n.getGreen() - p.getGreen();
       b = n.getBlue() - p.getBlue();
@@ -238,7 +239,7 @@ public class SeamCarver {
     // considering how each pixel points to three pixels in the row below, it is
     // more efficient to consider how each pixel is pointed to by three pixels
     // in the row above.
-    for (int y = 0; y <H; y++) {
+    for (int y = 0; y < H; y++) {
       for (int x = 0; x < W; x++) {
         // So, for the weight at pixel position (x, y), we simply
         // choose the smallest weight of pixels at (x-1, y-1), (x, y-1), and
@@ -272,7 +273,7 @@ public class SeamCarver {
             pathTo[x][y] = x + 1; // r
           else if (t < Integer.MAX_VALUE) pathTo[x][y] = x; // t
         }
-        weight[x][y] = energy[x][y] + Math.min(l, Math.min(r, t));
+        weight[x][y] = energy[y][x] + Math.min(l, Math.min(r, t));
 
         if (y == H - 1 && weight[x][y] < min) {
           min = weight[x][y];
@@ -333,6 +334,38 @@ public class SeamCarver {
    *              case
    */
   public void removeVerticalSeam(int[] seam) {
+    if (seam == null) throw new NullPointerException();
+
+    if (transposed) color = transposeColor(color);
+
+    if (seam.length != H) throw new IllegalArgumentException();
+    if (W <= 1) throw new IllegalArgumentException();
+    // Consider using System.arraycopy() to shift elements within an array.
+    // Reuse the energy array and shift array elements to plug the holes left
+    // from the seam that was just removed. You will need to recalculate the
+    // energies for the pixels along the seam that was just removed, but no
+    // other energies will change.
+    Color[][] c2 = new Color[color.length][color[0].length - 1]; // yx
+    double[][] e2 = new double[energy.length][energy[0].length - 1];
+
+    for (int y = 0; y < H; y++) {
+      if (seam[y] < 0 || seam[y] >= W) throw new IllegalArgumentException();
+      if (y > 0 && seam[y] - seam[y - 1] > 1) throw new IllegalArgumentException();
+      if (y < H - 1 && seam[y + 1] - seam[y] > 1)
+        throw new IllegalArgumentException();
+
+      System.arraycopy(color[y], 0, c2[y], 0, seam[y]);
+      System.arraycopy(color[y], seam[y] + 1, c2[y], seam[y], W - seam[y] - 1);
+
+      System.arraycopy(energy[y], 0, e2[y], 0, seam[y]);
+      System.arraycopy(energy[y], seam[y] + 1, e2[y], seam[y], W - seam[y] - 1);
+
+      if (seam[y] < color[0].length - 1) e2[y][seam[y]] = energyt(seam[y], y);
+    }
+    color = c2;
+    energy = e2;
+
+    W--;
   }
 
   public static void main(String[] args) {
