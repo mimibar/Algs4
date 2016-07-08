@@ -16,6 +16,14 @@ import edu.princeton.cs.algs4.Picture;
  *
  */
 public class SeamCarver {
+  private Picture pic;
+  private Color[][] color;
+  private int H, W;
+  /**
+   * [width][height]= [x][y]
+   */
+  private double[][] energy;
+
   /**
    * create a seam carver object based on the given picture
    *
@@ -27,6 +35,36 @@ public class SeamCarver {
    *           if is called with a null argument.
    */
   public SeamCarver(Picture picture) {
+    isNotNull(picture);
+    pic = new Picture(picture);
+    H = pic.height();
+    W = pic.width();
+    // We already use an array to store the colors
+    color = new Color[W][H];
+    for (int x = 0; x < W; x++) {
+      for (int y = 0; y < H; y++) {
+        color[x][y] = pic.get(x, y);
+      }
+    }
+    // and another array to store the energy levels of the pixels.
+    // construct a 2d energy array using the energy() method that you have
+    // already written.
+    energy = new double[W][H];
+    for (int x = 0; x < W; x++) {
+      for (int y = 0; y < H; y++) {
+        energy[x][y] = energy(x, y);
+      }
+    }
+
+  }
+
+  /**
+   * @param o
+   * @throws NullPointerException
+   *           if is called with a null argument.
+   */
+  private void isNotNull(Object o) {
+    if (o == null) throw new NullPointerException();
   }
 
   /**
@@ -35,32 +73,44 @@ public class SeamCarver {
    * @return
    */
   public Picture picture() {
+    // TODO There is no need to create a new Picture object after removing a
+    // seam —instead, you can maintain the color information in a 2D array of
+    // integers. That is, you can defer creating a Picture object until required
+    // to do (when the client calls picture()). Since Picture objects are
+    // relatively expensive, this will speed things up.
+    Picture p = new Picture(W, H);
+    for (int x = 0; x < W; x++)
+      for (int y = 0; y < H; y++)
+        p.set(x, y, color[x][y]);
+    pic = p;
+    return pic;
   }
 
   /**
-   * width of current picture
    *
-   * @return
+   *
+   * @return width of current picture
    * @performance should take constant time in the worst case
    */
   public int width() {
+    return W;
   }
 
   /**
-   * height of current picture
    *
-   * @return
+   * @return height of current picture
    * @performance should take constant time in the worst case
    */
   public int height() {
+    return H;
   }
 
   /**
-   * energy of pixel at column x and row y
+   *
    *
    * @param x
    * @param y
-   * @return
+   * @return energy of pixel at column x and row y
    * @throws IndexOutOfBoundsException
    *           if either x or y is outside its prescribed range: By convention,
    *           the indices x and y are integers between 0 and W − 1 and between
@@ -69,6 +119,36 @@ public class SeamCarver {
    * @performance should take constant time in the worst case
    */
   public double energy(int x, int y) {
+    if (x < 0 || x >= W || y < 0 || y >= H) throw new IndexOutOfBoundsException();
+
+    if (x > 0 && x < W - 1 && y > 0 && y < H - 1) {
+      // neg, pos
+      Color n, p;
+      int r, g, b;
+      double e = 0.0;
+      // x-gradient
+      n = pic.get(x - 1, y); // left
+      p = pic.get(x + 1, y); // right
+      r = n.getRed() - p.getRed();
+      g = n.getGreen() - p.getGreen();
+      b = n.getBlue() - p.getBlue();
+      e = (double) (r * r + g * g + b * b);
+
+      // y-gradient
+      n = pic.get(x, y - 1); // up
+      p = pic.get(x, y + 1); // down
+      r = n.getRed() - p.getRed();
+      g = n.getGreen() - p.getGreen();
+      b = n.getBlue() - p.getBlue();
+      e += (double) (r * r + g * g + b * b);
+
+      return Math.sqrt(e);
+    }
+    // We define the energy of a pixel at the border of the image to be
+    // 1000, so that it is strictly larger than the energy of any interior
+    // pixel.
+    return 1000;
+
   }
 
   /**
@@ -89,6 +169,78 @@ public class SeamCarver {
    *              case
    */
   public int[] findVerticalSeam() {
+    // Your algorithm can traverse the 2d energy array/matrix treating some
+    // select entries as reachable from (x, y) to calculate where the seam is
+    // located.
+
+    // We can use yet a third array to store the cumulative weights of these
+    // pixels
+    double[][] weight = new double[W][H];
+    double min = Integer.MAX_VALUE;
+    int seamX = 0, seamY = 0;
+    int[][] pathTo = new int[W][H];
+
+    // Because the pixel relationships follow a regular pattern, instead of
+    // considering how each pixel points to three pixels in the row below, it is
+    // more efficient to consider how each pixel is pointed to by three pixels
+    // in the row above.
+    for (int y = 0; y <H; y++) {
+      for (int x = 0; x < W; x++) {
+        // So, for the weight at pixel position (x, y), we simply
+        // choose the smallest weight of pixels at (x-1, y-1), (x, y-1), and
+        // (x+1, y-1) and add it to the energy at position (x, y). In addition,
+        // record this choice in the pathTo array. Do this for all pixels in
+        // topological order, being careful to handle corner conditions at the
+        // borders.
+        double l = Integer.MAX_VALUE, r = Integer.MAX_VALUE, t = Integer.MAX_VALUE;
+
+        if (y > 0) {
+          if (x > 0) // not left corner
+            l = weight[x - 1][y - 1];
+          if (x < W - 1)// not right corner
+            r = weight[x + 1][y - 1];
+          // not top corner
+          t = weight[x][y - 1];
+        }
+        else {
+          l = 0;
+          r = 0;
+          t = 0;
+        }
+
+        if (l <= r) {
+          if (l <= t)
+            pathTo[x][y] = x - 1; // l
+          else if (t < Integer.MAX_VALUE) pathTo[x][y] = x; // t
+        }
+        else {
+          if (r < t)
+            pathTo[x][y] = x + 1; // r
+          else if (t < Integer.MAX_VALUE) pathTo[x][y] = x; // t
+        }
+        weight[x][y] = energy[x][y] + Math.min(l, Math.min(r, t));
+
+        if (y == H - 1 && weight[x][y] < min) {
+          min = weight[x][y];
+          seamX = x;
+        }
+      }
+
+    }
+    int[] vSeam = new int[H];
+    // and a fourth array to store the paths along which these values are
+    // computed. Following the topological orderings of the pixels, we can
+    // compute one row of data from the row of data above it. Progressing in
+    // this manner, we can process the entire picture efficiently in one single
+    // pass.
+    seamY = H - 1;
+    vSeam[seamY] = seamX;
+    while (seamY > 0) {
+      seamX = pathTo[seamX][seamY];
+      seamY--;
+      vSeam[seamY] = seamX;
+    }
+    return vSeam;
   }
 
   /**
@@ -127,5 +279,9 @@ public class SeamCarver {
    *              case
    */
   public void removeVerticalSeam(int[] seam) {
+  }
+
+  public static void main(String[] args) {
+
   }
 }
