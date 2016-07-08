@@ -23,6 +23,7 @@ public class SeamCarver {
    * [width][height]= [x][y]
    */
   private double[][] energy;
+  private boolean transposed;
 
   /**
    * create a seam carver object based on the given picture
@@ -46,16 +47,24 @@ public class SeamCarver {
         color[x][y] = pic.get(x, y);
       }
     }
-    // and another array to store the energy levels of the pixels.
-    // construct a 2d energy array using the energy() method that you have
-    // already written.
+
+    setEnergies();
+
+  }
+
+  /**
+   * and another array to store the energy levels of the pixels. construct a 2d
+   * energy array using the energy() method that you have already written.
+   *
+   */
+  private void setEnergies() {
+
     energy = new double[W][H];
     for (int x = 0; x < W; x++) {
       for (int y = 0; y < H; y++) {
-        energy[x][y] = energy(x, y);
+        energy[x][y] = energyt(x, y);
       }
     }
-
   }
 
   /**
@@ -73,6 +82,13 @@ public class SeamCarver {
    * @return
    */
   public Picture picture() {
+    if (transposed) {
+      // transpose the image
+      color = transposeColor(color);
+      setEnergies(); // recalculate energies
+      // energy = transposeColor(energy);
+      transposed = false;
+    }
     // TODO There is no need to create a new Picture object after removing a
     // seam —instead, you can maintain the color information in a 2D array of
     // integers. That is, you can defer creating a Picture object until required
@@ -121,22 +137,30 @@ public class SeamCarver {
   public double energy(int x, int y) {
     if (x < 0 || x >= W || y < 0 || y >= H) throw new IndexOutOfBoundsException();
 
+    if (transposed) color = transposeColor(color);
+    return energyt(x, y);
+
+  }
+
+  private double energyt(int x, int y) {
+    if (x < 0 || x >= W || y < 0 || y >= H) throw new IndexOutOfBoundsException();
+
     if (x > 0 && x < W - 1 && y > 0 && y < H - 1) {
       // neg, pos
       Color n, p;
       int r, g, b;
       double e = 0.0;
       // x-gradient
-      n = pic.get(x - 1, y); // left
-      p = pic.get(x + 1, y); // right
+      n = color[x - 1][y]; // left
+      p = color[x + 1][y]; // right
       r = n.getRed() - p.getRed();
       g = n.getGreen() - p.getGreen();
       b = n.getBlue() - p.getBlue();
       e = (double) (r * r + g * g + b * b);
 
       // y-gradient
-      n = pic.get(x, y - 1); // up
-      p = pic.get(x, y + 1); // down
+      n = color[x][y - 1]; // up
+      p = color[x][y + 1]; // down
       r = n.getRed() - p.getRed();
       g = n.getGreen() - p.getGreen();
       b = n.getBlue() - p.getBlue();
@@ -159,6 +183,36 @@ public class SeamCarver {
    *              case
    */
   public int[] findHorizontalSeam() {
+    // TODO Don't explicitly transpose the Picture until you need to do so. For
+    // example, if you perform a sequence of 50 consecutive horizontal seam
+    // removals, you should need only two transposes (not 100).
+    if (!transposed) {
+      // transpose the image
+      color = transposeColor(color);
+      setEnergies(); // recalculate energies
+      // energy = transposeColor(energy);
+
+    }
+
+    // call findVerticalSeam(),
+    return findVerticalSeam();
+    // TODO and transpose it back.
+  }
+
+  /**
+   * @return
+   * @see {@link http://introcs.cs.princeton.edu/java/14array/Transpose.java}
+   */
+  private Color[][] transposeColor(Color[][] a) {
+
+    Color[][] t = new Color[a[0].length][a.length];
+    for (int i = 0; i < a.length; i++)
+      for (int j = 0; j < a[0].length; j++)
+        t[j][i] = a[i][j];
+    W = a[0].length;
+    H = a.length;
+    transposed = !transposed;
+    return t;
   }
 
   /**
