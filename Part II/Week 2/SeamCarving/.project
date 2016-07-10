@@ -26,4 +26,11 @@
 		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
 		<nature>edu.umd.cs.findbugs.plugin.eclipse.findbugsNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>testing</name>
+			<type>2</type>
+			<location>B:/Dropbox/Education &amp; Training/MOOCs/Coursera/Princeton Algorithms/Part II/Assignments/testing/seamCarving</location>
+		</link>
+	</linkedResources>
 </projectDescription>
