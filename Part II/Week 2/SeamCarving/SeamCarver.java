@@ -6,7 +6,6 @@
  * @howto
  */
 import java.awt.Color;
-import java.util.Arrays;
 
 import edu.princeton.cs.algs4.Picture;
 
@@ -210,8 +209,8 @@ public class SeamCarver {
     for (int i = 0; i < a.length; i++)
       for (int j = 0; j < a[0].length; j++)
         t[j][i] = a[i][j];
-    W = a[0].length;
-    H = a.length;
+    W = a.length;
+    H = a[0].length;
     transposed = !transposed;
     return t;
   }
@@ -315,6 +314,15 @@ public class SeamCarver {
    *              case
    */
   public void removeHorizontalSeam(int[] seam) {
+    // transpose the image
+    if (!transposed) color = transposeColor(color);
+
+    // call removeVerticalSeam()
+    removeVerticalSeam(seam);
+
+    // transpose it back
+    color = transposeColor(color);
+    setEnergies();
   }
 
   /**
@@ -334,9 +342,8 @@ public class SeamCarver {
    *              case
    */
   public void removeVerticalSeam(int[] seam) {
-    if (seam == null) throw new NullPointerException();
-
-    if (transposed) color = transposeColor(color);
+    isNotNull(seam);
+    // if (transposed) color = transposeColor(color);
 
     if (seam.length != H) throw new IllegalArgumentException();
     if (W <= 1) throw new IllegalArgumentException();
