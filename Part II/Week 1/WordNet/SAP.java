@@ -14,6 +14,7 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
 
 /**
  * Immutable data type SAP.
@@ -33,12 +34,12 @@ public class SAP {
    * instance variable. Because our Digraph data type is mutable, you must first
    * make a defensive copy by calling the copy constructor.
    */
-  private Digraph dg;
+  private final Digraph dg;
 
   /**
    * HashMap&ltv, HashMap&ltw, {len,anc}&gt&gt
    */
-  private HashMap<Integer, HashMap<Integer, int[]>> cache;
+  private final HashMap<Integer, HashMap<Integer, int[]>> cache;
 
   /**
    * constructor takes a digraph (not necessarily a DAG).</br>
@@ -73,7 +74,7 @@ public class SAP {
   public SAP(Digraph G) {
     isNotNull(G);
     dg = new Digraph(G);
-    cache = new HashMap<Integer, HashMap<Integer, int[]>>();
+    cache = new HashMap<>();
   }
 
   /**
@@ -138,7 +139,7 @@ public class SAP {
     if (cache.containsKey(v))
       vc = cache.get(v);
     else
-      vc = new HashMap<Integer, int[]>();
+      vc = new HashMap<>();
 
     if (vc.containsKey(w))
       vTow = vc.get(w); // len && anc
@@ -218,7 +219,6 @@ public class SAP {
     // vertices
     // Test 17: test length() and ancestor() with Iterable arguments
     // * 100 random subsets of 3 and 11 vertices in digraph-wordnet.txt
-    //
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     // OperationCountLimitExceededException
     // Number of primitive operations in Digraph exceeds limit: 1000000000
@@ -271,13 +271,13 @@ public class SAP {
   }
 
   /**
-   * @param o
+   * @param ob
    * @return true if argument not null
    * @throws NullPointerException
    *           if any argument is null.
    */
-  private static boolean isNotNull(Object o) {
-    if (o == null)
+  private static boolean isNotNull(Object ob) {
+    if (ob == null)
       throw new NullPointerException();
     return true;
   }
@@ -351,18 +351,17 @@ public class SAP {
     }
     // TODO Test 17: test length() and ancestor() with Iterable arguments
     // * 100 random subsets of 3 and 11 vertices in digraph-wordnet.txt
-    //
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     // OperationCountLimitExceededException
     // Number of primitive operations in Digraph exceeds limit: 1000000000
     // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     for (int i = 0; i <= 100; i++) {
-      LinkedList<Integer> w = new LinkedList<Integer>();
-      LinkedList<Integer> v = new LinkedList<Integer>();
+      LinkedList<Integer> w = new LinkedList<>();
+      LinkedList<Integer> v = new LinkedList<>();
       for (int j = 0; j < 3; j++)
-        v.add((int) (Math.random() * G.V()));
+        v.add((int) (StdRandom.uniform() * G.V()));
       for (int j = 0; j < 11; j++)
-        w.add((int) (Math.random() * G.V()));
+        w.add((int) (StdRandom.uniform() * G.V()));
 
       System.out.println(sap.ancestor(v, w));
       System.out.println(sap.length(v, w));

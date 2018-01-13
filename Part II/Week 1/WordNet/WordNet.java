@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Topological;
 
 /**
@@ -24,24 +24,22 @@ public class WordNet {
 
   /**
    * &lt;noun, synsets&gt;</br>
-   * A synset can consist of exactly one noun. Moreover, there can be several
-   * different synsets that consist of the same noun, i.e. a noun can appear in
-   * more than one synset.
+   * A synset can consist of exactly one noun. Moreover, there can be several different synsets that
+   * consist of the same noun, i.e. a noun can appear in more than one synset.
    */
-  private HashMap<String, List<Integer>> nounSynsets =
-      new HashMap<String, List<Integer>>();
+  private final HashMap<String, List<Integer>> nounSynsets = new HashMap<>();
 
   /**
    * Number of synsets
    */
   private int syn = 0;
 
-  private SAP sap;
+  private final SAP sap;
 
-  private ArrayList<String> synsets = new ArrayList<>();
+  private final ArrayList<String> synsets = new ArrayList<>();
 
   /**
-   * constructor takes the name of the two input files@param synsets
+   * constructor takes the name of the two input files
    *
    * @performance should take time linearithmic (or better) in the input size
    * @param synsets
@@ -56,110 +54,87 @@ public class WordNet {
   public WordNet(String synsets, String hypernyms) {
     isNotNull(synsets);
     isNotNull(hypernyms);
-
-    Scanner in = null;
-
+    String line;
+    String[] lines;
+    In in = null;
     ////////////////////////// Synsets
 
-    try {
-      // Do not import 'java.io.*' on Coursera programming assignments.
-      // Instead, use the I/O libraries in edu.princeton.cs.algs4.
-      // H I DM_DEFAULT_ENCODING Dm: Found reliance on default encoding
-      in = new Scanner(new java.io.File(synsets), "UTF-8");
-      in.useDelimiter(",");
+    in = new In(synsets);
 
-      String[] nouns;
-      List<Integer> ss;
+    String[] nouns;
+    List<Integer> ss;
+    while (in.hasNextLine()) {
+      line = in.readLine();
+      lines = line.split(",");
+      int key = Integer.parseInt(lines[0]);
+      String value = lines[1];
+      this.synsets.add(key, value);
 
-      while (in.hasNextLine()) {
-        int key = Integer.parseInt(in.next());
-        String value = in.next();
-        this.synsets.add(key, value);
+      nouns = value.split("\\s");
+      for (String n : nouns) {
+        if (nounSynsets.containsKey(n))
+          ss = nounSynsets.get(n);
+        else
+          ss = new LinkedList<>();
+        ss.add(key);
+        nounSynsets.put(n, ss);
 
-        nouns = value.split("\\s");
-        for (String n : nouns) {
-          if (nounSynsets.containsKey(n))
-            ss = nounSynsets.get(n);
-          else
-            ss = new LinkedList<>();
-          ss.add(key);
-          nounSynsets.put(n, ss);
-
-        }
-        syn++;
-        in.nextLine();
       }
-    } catch (java.io.FileNotFoundException e) {
-      e.printStackTrace();
-    } finally {
-      if (in != null)
-        in.close();
+      syn++;
+      // in.readLine();
     }
+    in.close();
 
     ////////////////////////// Hypernyms
-    try {
-      // H I DM_DEFAULT_ENCODING Dm: Found reliance on default encoding
-      in = new Scanner(new java.io.File(hypernyms), "UTF-8");
-      in.useDelimiter("[,\n]");
+    // scanner.useDelimiter("[,\n]");
+    in = new In(hypernyms);
+    Digraph dg = new Digraph(syn);
 
-      Digraph dg = new Digraph(syn);
+    while (in.hasNextLine()) {
+      line = in.readLine();
+      lines = line.split(",");
+      int i = 0;
+      int v = Integer.parseInt(lines[i]);
 
-      String s;
-      while (in.hasNext()) {
-
-        int v = Integer.parseInt(in.next());
-
-        s = in.nextLine();
-
-        for (String w : s.split(",")) {
-          if (!w.isEmpty())
-            dg.addEdge(v, Integer.parseInt(w));
-        }
-
+      while (i < lines.length - 1) {
+        String w = lines[++i];
+        if (!w.isEmpty()) dg.addEdge(v, Integer.parseInt(w));
       }
-      if (!isRooted(dg) || !(new Topological(dg).hasOrder()))
-        throw new IllegalArgumentException(
-            "the input does not correspond to a rooted DAG");
-
-      sap = new SAP(dg);
-    } catch (java.io.FileNotFoundException e) {
-      e.printStackTrace();
-    } finally {
-      if (in != null)
-        in.close();
     }
+    if (!isRooted(dg) || !(new Topological(dg).hasOrder()))
+      throw new IllegalArgumentException("the input does not correspond to a rooted DAG");
+
+    sap = new SAP(dg);
+    in.close();
+
   }
 
   /**
-   * @param o
+   * @param ob
    * @return true if argument not null
    * @throws NullPointerException
    *           if any argument is null.
    */
-  private static boolean isNotNull(Object o) {
-    if (o == null)
-      throw new NullPointerException();
+  private static boolean isNotNull(Object ob) {
+    if (ob == null) throw new NullPointerException();
     return true;
   }
 
   /**
-   * a rooted DAG: it is acyclic and has one vertex—the root—that is an ancestor
-   * of every other vertex.</br>
+   * a rooted DAG: it is acyclic and has one vertex—the root—that is an ancestor of every other
+   * vertex.</br>
    *
-   * Reachable vertex in a DAG. A linear-time algorithm to determine whether a
-   * DAG has a vertex that is reachable from every other vertex. Compute the
-   * outdegree of each vertex. If the DAG has exactly one vertex v with
-   * outdegree 0, then it is reachable from every other vertex.
+   * Reachable vertex in a DAG. A linear-time algorithm to determine whether a DAG has a vertex that
+   * is reachable from every other vertex. Compute the outdegree of each vertex. If the DAG has
+   * exactly one vertex v with outdegree 0, then it is reachable from every other vertex.
    *
-   * A vertex with outdegree of zero would be the root at least of its subgraph.
-   * And if there are no cycles, then a singular vertex with outdegree of zero
-   * would imply it can be reached from all other vertices. That would make the
-   * graph a rooted DAG. We still need to make sure that the graph has no
-   * cycles.
+   * A vertex with outdegree of zero would be the root at least of its subgraph. And if there are no
+   * cycles, then a singular vertex with outdegree of zero would imply it can be reached from all
+   * other vertices. That would make the graph a rooted DAG. We still need to make sure that the
+   * graph has no cycles.
    *
-   * @see <a href=
-   *      "https://class.coursera.org/algs4partII-007/forum/thread?thread_id=52">
-   *      Rooted DAG and cycle detection</a>
+   * @see <a href= "https://class.coursera.org/algs4partII-007/forum/thread?thread_id=52"> Rooted
+   *      DAG and cycle detection</a>
    * @see <a href=
    *      "https://class.coursera.org/algs4partII-007/forum/thread?thread_id=37#comment-42">
    *      Multiple root detection<a/>
@@ -169,16 +144,14 @@ public class WordNet {
   private static boolean isRooted(Digraph g) {
     boolean rootFound = false;
     for (int i = 0; i < g.V(); i++) {
-      if (g.outdegree(i) == 0)
-        if (rootFound)
+      if (g.outdegree(i) == 0) if (rootFound)
         return false;
-        else
+      else
         rootFound = true;
     }
     return rootFound;
   }
 
-  //
   /**
    * returns all WordNet nouns
    *
@@ -193,8 +166,7 @@ public class WordNet {
   /**
    * is the word a WordNet noun?
    *
-   * @performance should run in time logarithmic (or better) in the number of
-   *              nouns.
+   * @performance should run in time logarithmic (or better) in the number of nouns.
    * @param word
    * @return
    * @throws NullPointerException
@@ -221,19 +193,18 @@ public class WordNet {
 
     isNotNull(nounA);
     isNotNull(nounB);
-    if (!isNoun(nounA) || !isNoun(nounB))
-      throw new IllegalArgumentException();
+    if (!isNoun(nounA) || !isNoun(nounB)) throw new IllegalArgumentException();
     return sap.length(nounSynsets.get(nounA), nounSynsets.get(nounB));
   }
 
   /**
-   * a synset (second field of synsets.txt) that is the common ancestor of nounA
-   * and nounB in a shortest ancestral path (defined below)
+   * a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB in a
+   * shortest ancestral path (defined below)
    *
    * @param nounA
    * @param nounB
-   * @return The individual nouns that comprise a synset are separated by spaces
-   *         (and a synset element is not permitted to contain a space).
+   * @return The individual nouns that comprise a synset are separated by spaces (and a synset
+   *         element is not permitted to contain a space).
    * @throws NullPointerException
    *           if any argument is null.
    * @throws IllegalArgumentException
@@ -244,8 +215,7 @@ public class WordNet {
     isNotNull(nounA);
     isNotNull(nounB);
 
-    if (!isNoun(nounA) || !isNoun(nounB))
-      throw new IllegalArgumentException();
+    if (!isNoun(nounA) || !isNoun(nounB)) throw new IllegalArgumentException();
 
     int anc = sap.ancestor(nounSynsets.get(nounA), nounSynsets.get(nounB));
 
@@ -263,30 +233,26 @@ public class WordNet {
    */
   public static void main(String[] args) {
     WordNet wn = new WordNet(args[0], args[1]);
-    if (wn.nouns() != null) {
-      System.out.println(wn.isNoun("Abruzzi"));
-      System.out.println(wn.distance("Abruzzi", "Abutilon"));
 
-      // Test 4: test sap() of random noun pairs
-      System.out.println(wn.sap("phenylacetamide", "Constantine_the_Great"));
-      // Test 14: random calls to isNoun(), distance(), and sap(), with
-      // probabilities p1, p2, and p3, respectively
-      System.out.println(wn.sap("nuclear_engineering", "Osteoglossiformes"));
-      System.out.println(wn.sap("trope", "conditional_probability"));
-      System.out.println(wn.sap("genus_Majorana", "XII"));
+    System.out.println(wn.isNoun("Abruzzi"));
+    System.out.println(wn.distance("Abruzzi", "Abutilon"));
 
-      // Test 6: test sap() of random noun pairs
-      wn = new WordNet("testing/synsets100-subgraph.txt",
-          "testing/hypernyms100-subgraph.txt");
-      System.out.println(wn.sap("Christmas_factor", "supermolecule"));
+    // Test 4: test sap() of random noun pairs
+    System.out.println(wn.sap("phenylacetamide", "Constantine_the_Great"));
+    // Test 14: random calls to isNoun(), distance(), and sap(), with
+    // probabilities p1, p2, and p3, respectively
+    System.out.println(wn.sap("nuclear_engineering", "Osteoglossiformes"));
+    System.out.println(wn.sap("trope", "conditional_probability"));
+    System.out.println(wn.sap("genus_Majorana", "XII"));
 
-      wn = new WordNet("testing/synsets500-subgraph.txt",
-          "testing/hypernyms500-subgraph.txt");
-      System.out.println(wn.sap("butyl", "uranyl"));
-      wn = new WordNet("testing/synsets500-subgraph.txt",
-          "testing/hypernyms500-subgraph.txt");
-      System.out.println(wn.sap("gondang_wax", "ketone_group"));
-    }
+    // Test 6: test sap() of random noun pairs
+    wn = new WordNet("testing/synsets100-subgraph.txt", "testing/hypernyms100-subgraph.txt");
+    System.out.println(wn.sap("Christmas_factor", "supermolecule"));
+
+    wn = new WordNet("testing/synsets500-subgraph.txt", "testing/hypernyms500-subgraph.txt");
+    System.out.println(wn.sap("butyl", "uranyl"));
+    wn = new WordNet("testing/synsets500-subgraph.txt", "testing/hypernyms500-subgraph.txt");
+    System.out.println(wn.sap("gondang_wax", "ketone_group"));
   }
 
 }
