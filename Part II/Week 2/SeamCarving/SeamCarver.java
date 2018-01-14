@@ -18,7 +18,7 @@ import edu.princeton.cs.algs4.Picture;
 public class SeamCarver {
   private Picture pic;
   private Color[][] color;
-  private int H, W;
+  private int h, w;
   /**
    * [width][height]= [x][y]
    */
@@ -38,12 +38,12 @@ public class SeamCarver {
   public SeamCarver(Picture picture) {
     isNotNull(picture);
     pic = new Picture(picture);
-    H = pic.height();
-    W = pic.width();
+    h = pic.height();
+    w = pic.width();
     // We already use an array to store the colors
-    color = new Color[H][W];
-    for (int x = 0; x < W; x++) {
-      for (int y = 0; y < H; y++) {
+    color = new Color[h][w];
+    for (int x = 0; x < w; x++) {
+      for (int y = 0; y < h; y++) {
         color[y][x] = pic.get(x, y);
       }
     }
@@ -59,21 +59,21 @@ public class SeamCarver {
    */
   private void setEnergies() {
 
-    energy = new double[H][W];
-    for (int x = 0; x < W; x++) {
-      for (int y = 0; y < H; y++) {
+    energy = new double[h][w];
+    for (int x = 0; x < w; x++) {
+      for (int y = 0; y < h; y++) {
         energy[y][x] = energyt(x, y);
       }
     }
   }
 
   /**
-   * @param o
+   * @param ob
    * @throws NullPointerException
    *           if is called with a null argument.
    */
-  private void isNotNull(Object o) {
-    if (o == null) throw new NullPointerException();
+  private void isNotNull(Object ob) {
+    if (ob == null) throw new NullPointerException();
   }
 
   /**
@@ -94,9 +94,9 @@ public class SeamCarver {
     // integers. That is, you can defer creating a Picture object until required
     // to do (when the client calls picture()). Since Picture objects are
     // relatively expensive, this will speed things up.
-    Picture p = new Picture(W, H);
-    for (int x = 0; x < W; x++)
-      for (int y = 0; y < H; y++)
+    Picture p = new Picture(w, h);
+    for (int x = 0; x < w; x++)
+      for (int y = 0; y < h; y++)
         p.set(x, y, color[y][x]);
     pic = p;
     return pic;
@@ -109,7 +109,7 @@ public class SeamCarver {
    * @performance should take constant time in the worst case
    */
   public int width() {
-    return W;
+    return w;
   }
 
   /**
@@ -118,7 +118,7 @@ public class SeamCarver {
    * @performance should take constant time in the worst case
    */
   public int height() {
-    return H;
+    return h;
   }
 
   /**
@@ -127,7 +127,7 @@ public class SeamCarver {
    * @param x
    * @param y
    * @return energy of pixel at column x and row y
-   * @throws IndexOutOfBoundsException
+   * @throws IllegalArgumentException 
    *           if either x or y is outside its prescribed range: By convention,
    *           the indices x and y are integers between 0 and W − 1 and between
    *           0 and H − 1 respectively, where W is the width of the current
@@ -135,7 +135,7 @@ public class SeamCarver {
    * @performance should take constant time in the worst case
    */
   public double energy(int x, int y) {
-    if (x < 0 || x >= W || y < 0 || y >= H) throw new IndexOutOfBoundsException();
+    if (x < 0 || x >= w || y < 0 || y >= h) throw new IllegalArgumentException ();
 
     if (transposed) color = transposeColor(color);
     return energyt(x, y);
@@ -143,9 +143,9 @@ public class SeamCarver {
   }
 
   private double energyt(int x, int y) {
-    if (x < 0 || x >= W || y < 0 || y >= H) throw new IndexOutOfBoundsException();
+    if (x < 0 || x >= w || y < 0 || y >= h) throw new IndexOutOfBoundsException();
 
-    if (x > 0 && x < W - 1 && y > 0 && y < H - 1) {
+    if (x > 0 && x < w - 1 && y > 0 && y < h - 1) {
       // neg, pos
       Color n, p;
       int r, g, b;
@@ -209,8 +209,8 @@ public class SeamCarver {
     for (int i = 0; i < a.length; i++)
       for (int j = 0; j < a[0].length; j++)
         t[j][i] = a[i][j];
-    W = a.length;
-    H = a[0].length;
+    w = a.length;
+    h = a[0].length;
     transposed = !transposed;
     return t;
   }
@@ -229,41 +229,41 @@ public class SeamCarver {
 
     // We can use yet a third array to store the cumulative weights of these
     // pixels
-    double[][] weight = new double[W][H];
+    double[][] weight = new double[w][h];
     double min = Integer.MAX_VALUE;
     int seamX = 0, seamY = 0;
-    int[][] pathTo = new int[W][H];
+    int[][] pathTo = new int[w][h];
 
     // Because the pixel relationships follow a regular pattern, instead of
     // considering how each pixel points to three pixels in the row below, it is
     // more efficient to consider how each pixel is pointed to by three pixels
     // in the row above.
-    for (int y = 0; y < H; y++) {
-      for (int x = 0; x < W; x++) {
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
         // So, for the weight at pixel position (x, y), we simply
         // choose the smallest weight of pixels at (x-1, y-1), (x, y-1), and
         // (x+1, y-1) and add it to the energy at position (x, y). In addition,
         // record this choice in the pathTo array. Do this for all pixels in
         // topological order, being careful to handle corner conditions at the
         // borders.
-        double l = Integer.MAX_VALUE, r = Integer.MAX_VALUE, t = Integer.MAX_VALUE;
+        double left = Integer.MAX_VALUE, r = Integer.MAX_VALUE, t = Integer.MAX_VALUE;
 
         if (y > 0) {
           if (x > 0) // not left corner
-            l = weight[x - 1][y - 1];
-          if (x < W - 1)// not right corner
+            left = weight[x - 1][y - 1];
+          if (x < w - 1)// not right corner
             r = weight[x + 1][y - 1];
           // not top corner
           t = weight[x][y - 1];
         }
         else {
-          l = 0;
+          left = 0;
           r = 0;
           t = 0;
         }
 
-        if (l <= r) {
-          if (l <= t)
+        if (left <= r) {
+          if (left <= t)
             pathTo[x][y] = x - 1; // l
           else if (t < Integer.MAX_VALUE) pathTo[x][y] = x; // t
         }
@@ -272,22 +272,22 @@ public class SeamCarver {
             pathTo[x][y] = x + 1; // r
           else if (t < Integer.MAX_VALUE) pathTo[x][y] = x; // t
         }
-        weight[x][y] = energy[y][x] + Math.min(l, Math.min(r, t));
+        weight[x][y] = energy[y][x] + Math.min(left, Math.min(r, t));
 
-        if (y == H - 1 && weight[x][y] < min) {
+        if (y == h - 1 && weight[x][y] < min) {
           min = weight[x][y];
           seamX = x;
         }
       }
 
     }
-    int[] vSeam = new int[H];
+    int[] vSeam = new int[h];
     // and a fourth array to store the paths along which these values are
     // computed. Following the topological orderings of the pixels, we can
     // compute one row of data from the row of data above it. Progressing in
     // this manner, we can process the entire picture efficiently in one single
     // pass.
-    seamY = H - 1;
+    seamY = h - 1;
     vSeam[seamY] = seamX;
     while (seamY > 0) {
       seamX = pathTo[seamX][seamY];
@@ -345,8 +345,8 @@ public class SeamCarver {
     isNotNull(seam);
     // if (transposed) color = transposeColor(color);
 
-    if (seam.length != H) throw new IllegalArgumentException();
-    if (W <= 1) throw new IllegalArgumentException();
+    if (seam.length != h) throw new IllegalArgumentException();
+    if (w <= 1) throw new IllegalArgumentException();
     // Consider using System.arraycopy() to shift elements within an array.
     // Reuse the energy array and shift array elements to plug the holes left
     // from the seam that was just removed. You will need to recalculate the
@@ -355,24 +355,24 @@ public class SeamCarver {
     Color[][] c2 = new Color[color.length][color[0].length - 1]; // yx
     double[][] e2 = new double[energy.length][energy[0].length - 1];
 
-    for (int y = 0; y < H; y++) {
-      if (seam[y] < 0 || seam[y] >= W) throw new IllegalArgumentException();
+    for (int y = 0; y < h; y++) {
+      if (seam[y] < 0 || seam[y] >= w) throw new IllegalArgumentException();
       if (y > 0 && seam[y] - seam[y - 1] > 1) throw new IllegalArgumentException();
-      if (y < H - 1 && seam[y + 1] - seam[y] > 1)
+      if (y < h - 1 && seam[y + 1] - seam[y] > 1)
         throw new IllegalArgumentException();
 
       System.arraycopy(color[y], 0, c2[y], 0, seam[y]);
-      System.arraycopy(color[y], seam[y] + 1, c2[y], seam[y], W - seam[y] - 1);
+      System.arraycopy(color[y], seam[y] + 1, c2[y], seam[y], w - seam[y] - 1);
 
       System.arraycopy(energy[y], 0, e2[y], 0, seam[y]);
-      System.arraycopy(energy[y], seam[y] + 1, e2[y], seam[y], W - seam[y] - 1);
+      System.arraycopy(energy[y], seam[y] + 1, e2[y], seam[y], w - seam[y] - 1);
 
       if (seam[y] < color[0].length - 1) e2[y][seam[y]] = energyt(seam[y], y);
     }
     color = c2;
     energy = e2;
 
-    W--;
+    w--;
   }
 
   public static void main(String[] args) {
