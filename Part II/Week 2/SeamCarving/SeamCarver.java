@@ -86,7 +86,7 @@ public class SeamCarver {
       // transpose the image
       transpose();
       // energy = transposeColor(energy);
-      transposed = false;
+      // transposed = false;
     }
     // TODO There is no need to create a new Picture object after removing a
     // seam —instead, you can maintain the color information in a 2D array of
@@ -136,7 +136,7 @@ public class SeamCarver {
   public double energy(int x, int y) {
     if (x < 0 || x >= w || y < 0 || y >= h) throw new IllegalArgumentException();
 
-    if (transposed) color = transposeColor(color);
+    if (transposed) transpose();
     return energyt(x, y);
 
   }
