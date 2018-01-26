@@ -22,7 +22,6 @@ public class SeamCarver {
   /**
    * [width][height]= [x][y]
    */
-  private double[][] energy;
   private boolean transposed;
 
   /**
@@ -48,23 +47,6 @@ public class SeamCarver {
       }
     }
 
-    setEnergies();
-
-  }
-
-  /**
-   * and another array to store the energy levels of the pixels. construct a 2d
-   * energy array using the energy() method that you have already written.
-   *
-   */
-  private void setEnergies() {
-
-    energy = new double[h][w];
-    for (int x = 0; x < w; x++) {
-      for (int y = 0; y < h; y++) {
-        energy[y][x] = energyt(x, y);
-      }
-    }
   }
 
   /**
@@ -200,7 +182,6 @@ public class SeamCarver {
    */
   private void transpose() {
     color = transposeColor(color);
-    setEnergies();
     // energy = transposeColor(energy);
   }
 
@@ -278,7 +259,7 @@ public class SeamCarver {
             pathTo[x][y] = x + 1; // r
           else if (t < Integer.MAX_VALUE) pathTo[x][y] = x; // t
         }
-        weight[x][y] = energy[y][x] + Math.min(left, Math.min(r, t));
+        weight[x][y] = energyt(x, y) + Math.min(left, Math.min(r, t));
 
         if (y == h - 1 && weight[x][y] < min) {
           min = weight[x][y];
@@ -358,25 +339,13 @@ public class SeamCarver {
     // energies for the pixels along the seam that was just removed, but no
     // other energies will change.
     Color[][] c2 = new Color[color.length][color[0].length - 1]; // yx
-    double[][] e2 = new double[energy.length][energy[0].length - 1];
 
     for (int y = 0; y < h; y++) {
       isValidSeam(seam, y);
       System.arraycopy(color[y], 0, c2[y], 0, seam[y]);
       System.arraycopy(color[y], seam[y] + 1, c2[y], seam[y], w - seam[y] - 1);
-
-      // java.lang.ArrayIndexOutOfBoundsException: 5
-      System.arraycopy(energy[y], 0, e2[y], 0, seam[y]);
-      // java.lang.ArrayIndexOutOfBoundsException
-      // java.lang.System.arraycopy(Native Method)
-      System.arraycopy(energy[y], seam[y] + 1, e2[y], seam[y], w - seam[y] - 1);
-
-      if (seam[y] < color[0].length - 1) {
-        e2[y][seam[y]] = energyt(seam[y], y);
-      }
     }
     color = c2;
-    energy = e2;
 
     w--;
   }
