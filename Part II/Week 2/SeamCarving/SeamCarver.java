@@ -32,7 +32,7 @@ public class SeamCarver {
    *          The data type may not mutate the Picture argument to the
    *          constructor.
    *
-   * @throws NullPointerException
+   * @throws IllegalArgumentException
    *           if is called with a null argument.
    */
   public SeamCarver(Picture picture) {
@@ -69,11 +69,11 @@ public class SeamCarver {
 
   /**
    * @param ob
-   * @throws NullPointerException
+   * @throws IllegalArgumentException
    *           if is called with a null argument.
    */
   private void isNotNull(Object ob) {
-    if (ob == null) throw new NullPointerException();
+    if (ob == null) throw new IllegalArgumentException();
   }
 
   /**
@@ -127,15 +127,15 @@ public class SeamCarver {
    * @param x
    * @param y
    * @return energy of pixel at column x and row y
-   * @throws IllegalArgumentException 
+   * @throws IllegalArgumentException
    *           if either x or y is outside its prescribed range: By convention,
-   *           the indices x and y are integers between 0 and W − 1 and between
-   *           0 and H − 1 respectively, where W is the width of the current
-   *           image and H is the height.
+   *           the indices x and y are integers between 0 and W − 1 and
+   *           between 0 and H − 1 respectively, where W is the width of the
+   *           current image and H is the height.
    * @performance should take constant time in the worst case
    */
   public double energy(int x, int y) {
-    if (x < 0 || x >= w || y < 0 || y >= h) throw new IllegalArgumentException ();
+    if (x < 0 || x >= w || y < 0 || y >= h) throw new IllegalArgumentException();
 
     if (transposed) color = transposeColor(color);
     return energyt(x, y);
@@ -246,7 +246,8 @@ public class SeamCarver {
         // record this choice in the pathTo array. Do this for all pixels in
         // topological order, being careful to handle corner conditions at the
         // borders.
-        double left = Integer.MAX_VALUE, r = Integer.MAX_VALUE, t = Integer.MAX_VALUE;
+        double left = Integer.MAX_VALUE, r = Integer.MAX_VALUE,
+            t = Integer.MAX_VALUE;
 
         if (y > 0) {
           if (x > 0) // not left corner
@@ -356,23 +357,51 @@ public class SeamCarver {
     double[][] e2 = new double[energy.length][energy[0].length - 1];
 
     for (int y = 0; y < h; y++) {
-      if (seam[y] < 0 || seam[y] >= w) throw new IllegalArgumentException();
-      if (y > 0 && seam[y] - seam[y - 1] > 1) throw new IllegalArgumentException();
-      if (y < h - 1 && seam[y + 1] - seam[y] > 1)
-        throw new IllegalArgumentException();
-
+      isValidSeam(seam, y);
       System.arraycopy(color[y], 0, c2[y], 0, seam[y]);
       System.arraycopy(color[y], seam[y] + 1, c2[y], seam[y], w - seam[y] - 1);
 
+      // java.lang.ArrayIndexOutOfBoundsException: 5
       System.arraycopy(energy[y], 0, e2[y], 0, seam[y]);
       System.arraycopy(energy[y], seam[y] + 1, e2[y], seam[y], w - seam[y] - 1);
 
-      if (seam[y] < color[0].length - 1) e2[y][seam[y]] = energyt(seam[y], y);
+      if (seam[y] < color[0].length - 1) {
+        e2[y][seam[y]] = energyt(seam[y], y);
+      }
     }
     color = c2;
     energy = e2;
 
     w--;
+  }
+
+  /**
+   * Is called with an array of the wrong length or if the array is not a valid
+   * seam (i.e., either an entry is outside its prescribed range or two adjacent
+   * entries differ by more than 1).
+   * 
+   * Is called when the width of the picture is less than or equal to 1 or when
+   * the height of the picture is less than or equal to 1.
+   * 
+   * @param seam
+   * @param y
+   * @throws IllegalArgumentException
+   *           if is called with an array of the wrong length or if the array is
+   *           not a valid seam (i.e., either an entry is outside its prescribed
+   *           range or two adjacent entries differ by more than 1).
+   * @throws IllegalArgumentException
+   *           if is called when the width of the picture is less than or equal
+   *           to 1
+   */
+  private void isValidSeam(int[] seam, int y) {
+    // The array is not a valid seam:
+    // an entry is outside its prescribed range
+    if (seam[y] < 0 || seam[y] >= w) throw new IllegalArgumentException();
+    // two adjacent entries differ by more than 1
+    if (y > 0 && Math.abs(seam[y] - seam[y - 1]) > 1)
+      throw new IllegalArgumentException();
+    if (y < h - 1 && Math.abs(seam[y + 1] - seam[y]) > 1)
+      throw new IllegalArgumentException();
   }
 
   public static void main(String[] args) {
