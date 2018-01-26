@@ -338,15 +338,12 @@ public class SeamCarver {
     // from the seam that was just removed. You will need to recalculate the
     // energies for the pixels along the seam that was just removed, but no
     // other energies will change.
-    Color[][] c2 = new Color[color.length][color[0].length - 1]; // yx
 
     for (int y = 0; y < h; y++) {
       isValidSeam(seam, y);
-      System.arraycopy(color[y], 0, c2[y], 0, seam[y]);
-      System.arraycopy(color[y], seam[y] + 1, c2[y], seam[y], w - seam[y] - 1);
+      System.arraycopy(color[y], 0, color[y], 0, seam[y]);
+      System.arraycopy(color[y], seam[y] + 1, color[y], seam[y], w - seam[y] - 1);
     }
-    color = c2;
-
     w--;
   }
 
