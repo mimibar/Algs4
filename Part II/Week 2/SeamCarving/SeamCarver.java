@@ -84,8 +84,7 @@ public class SeamCarver {
   public Picture picture() {
     if (transposed) {
       // transpose the image
-      color = transposeColor(color);
-      setEnergies(); // recalculate energies
+      transpose();
       // energy = transposeColor(energy);
       transposed = false;
     }
@@ -187,16 +186,22 @@ public class SeamCarver {
     // example, if you perform a sequence of 50 consecutive horizontal seam
     // removals, you should need only two transposes (not 100).
     if (!transposed) {
-      // transpose the image
-      color = transposeColor(color);
-      setEnergies(); // recalculate energies
-      // energy = transposeColor(energy);
 
+      transpose();
     }
 
     // call findVerticalSeam(),
     return findVerticalSeam();
     // TODO and transpose it back.
+  }
+
+  /**
+   * transpose the image and recalculate energies
+   */
+  private void transpose() {
+    color = transposeColor(color);
+    setEnergies();
+    // energy = transposeColor(energy);
   }
 
   /**
@@ -316,14 +321,13 @@ public class SeamCarver {
    */
   public void removeHorizontalSeam(int[] seam) {
     // transpose the image
-    if (!transposed) color = transposeColor(color);
+    if (!transposed) transpose();
 
     // call removeVerticalSeam()
     removeVerticalSeam(seam);
 
     // transpose it back
-    color = transposeColor(color);
-    setEnergies();
+    transpose();
   }
 
   /**
@@ -363,6 +367,8 @@ public class SeamCarver {
 
       // java.lang.ArrayIndexOutOfBoundsException: 5
       System.arraycopy(energy[y], 0, e2[y], 0, seam[y]);
+      // java.lang.ArrayIndexOutOfBoundsException
+      // java.lang.System.arraycopy(Native Method)
       System.arraycopy(energy[y], seam[y] + 1, e2[y], seam[y], w - seam[y] - 1);
 
       if (seam[y] < color[0].length - 1) {
